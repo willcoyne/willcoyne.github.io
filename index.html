@@ -18,10 +18,11 @@
     }
     video.background {
       position: fixed;
-      top: -96%;
-      left: 0;
-      min-width: 100%;
-      min-height: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 100vw;
+      min-height: 100vh;
       object-fit: cover;
       z-index: -1;
     }
@@ -36,11 +37,12 @@
       font-weight: bold;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
     }
+
   </style>
 </head>
 <body>
   <video autoplay muted loop class="background">
-    <source src="hayden.mp4" type="video/mp4">
+    <source src="hayden.mp4" type="video/mp4" id="bruh">
     Your browser does not support the video tag.
   </video>
 
