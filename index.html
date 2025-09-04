@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    video.background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    .overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      font-size: 3rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <video autoplay muted loop class="background">
+    <source src="hayden.mov" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="overlay" id="countdown"></div>
+
+  <script>
+    function updateCountdown() {
+      // Target date: September 22, 5pm Central Time (UTC-5)
+      const targetDate = new Date('2025-09-22T17:00:00-05:00');
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown').innerHTML = "Event Started!";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('countdown').innerHTML =
+        days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
