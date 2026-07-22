@@ -1,0 +1,16 @@
+[Unit]
+Description=Will Coyne Q&A Server
+After=network.target mariadb.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/penny/willcoyne.github.io/server
+ExecStart=/usr/bin/node /home/penny/willcoyne.github.io/server/src/index.js
+Restart=on-failure
+RestartSec=5
+User=penny
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
