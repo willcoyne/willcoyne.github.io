@@ -15,20 +15,14 @@ export default function App(){
   const [pinkie, setPinkie] = useState(false)
   const [notice, setNotice] = useState('')
   const [loading, setLoading] = useState(false)
-  const [dark, setDark] = useState(false)
+
+  useEffect(()=>{
+    document.documentElement.classList.add('dark')
+  }, [])
 
   useEffect(()=>{
     setNotice('')
   }, [tier])
-
-  useEffect(()=>{
-    // read theme from localStorage
-    const t = localStorage.getItem('theme')
-    if(t === 'dark'){
-      document.documentElement.classList.add('dark')
-      setDark(true)
-    }
-  }, [])
 
   async function copyVenmo(){
     try{
@@ -42,7 +36,6 @@ export default function App(){
   async function handleSubmit(){
     if(!question.trim()){ alert('Please enter a question or prompt.'); return }
     if(!email.trim()){ alert('Please enter your email so William can reply.'); return }
-    // basic email validation: must contain @ and . after @
     const at = email.indexOf('@')
     const dot = email.lastIndexOf('.')
     if(at < 1 || dot < at + 2){ alert('Please enter a valid email address.'); return }
@@ -58,14 +51,13 @@ export default function App(){
       const body = { name, email, question, tier, amount: tier==='paid' ? Number(amount) : null }
 
       if(FORMSPREE_ENDPOINT){
-        // Send to Formspree (no backend). Formspree accepts JSON POSTs.
         const res = await fetch(FORMSPREE_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify(body)
         })
         if(res.ok){
-          setNotice('Submitted! William will receive your question by email.')
+          setNotice('Submitted! Coyne AI will receive your question and William will respond by email.')
           setName('')
           setEmail('')
           setQuestion('')
@@ -77,7 +69,6 @@ export default function App(){
           setNotice('Submission failed: ' + (err.error || res.statusText))
         }
       }else{
-        // Fallback to local backend
         const res = await fetch('/api/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -86,7 +77,6 @@ export default function App(){
         if(res.status === 201){
           const data = await res.json()
           setNotice('Submitted! Your question id: ' + data.id + '. William will respond by email.')
-          // reset form
           setName('')
           setEmail('')
           setQuestion('')
@@ -105,64 +95,57 @@ export default function App(){
     }
   }
 
-  function toggleTheme(){
-    const nowDark = !dark
-    setDark(nowDark)
-    if(nowDark) document.documentElement.classList.add('dark')
-    else document.documentElement.classList.remove('dark')
-    localStorage.setItem('theme', nowDark ? 'dark' : 'light')
-  }
-
   return (
     <div className="wrap">
-      <div style={{display:'flex',alignItems:'center',gap:12,justifyContent:'space-between'}}>
-        <h1>Ask William a Question</h1>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <label style={{fontSize:13}} className="muted">Dark</label>
-          <button onClick={toggleTheme} style={{background:dark?"#111":"#eee",color:dark?"#fff":"#111",padding:'6px 10px',borderRadius:8}}>{dark? 'On' : 'Off'}</button>
+      <header className="hero">
+        <div>
+          <span className="eyebrow">Live Advice Engine</span>
+          <h1>Coyne AI</h1>
+          <p className="lead">Ask a living AI for advice on your problems, decisions, and creative ideas. Get thoughtful guidance delivered by William with a futuristic edge.</p>
         </div>
-      </div>
-      <p className="lead">Submit a question or prompt — William will answer personally. Choose free or pay for priority.</p>
+        <div className="status-card">
+          <span>Dark mode</span>
+          <strong>Enabled</strong>
+        </div>
+      </header>
 
-      <div className="form">
+      <section className="form-card">
         <label>Your name</label>
         <input value={name} onChange={e=>setName(e.target.value)} placeholder="Jane Doe" />
 
-        <label>Your email (so William can reply)</label>
+        <label>Your email</label>
         <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" />
 
         <label>Your question or prompt</label>
-        <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Type your question here..." />
+        <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Ask Coyne AI anything..." />
 
-        <label>Delivery option</label>
-        <div className="row">
-          <label className="radio"><input type="radio" checked={tier==='free'} onChange={()=>setTier('free')} /> Ask for free</label>
-          <label className="radio"><input type="radio" checked={tier==='paid'} onChange={()=>setTier('paid')} /> Pay for priority</label>
+        <label>Response priority</label>
+        <div className="row choices">
+          <label className="radio"><input type="radio" checked={tier==='free'} onChange={()=>setTier('free')} /> Free advice</label>
+          <label className="radio"><input type="radio" checked={tier==='paid'} onChange={()=>setTier('paid')} /> Priority response</label>
         </div>
 
         {tier === 'paid' && (
           <div className="paybox">
-            <div className="small">To pay, send your Venmo payment to <strong>{venmoUser}</strong>. After paying, pinkie promise you paid and enter the amount you sent. Higher amounts receive higher priority.</div>
-            <div style={{marginTop:8}} className="row">
+            <div className="small">Send payment to <strong>{venmoUser}</strong> for priority handling. Enter the amount you paid and confirm with a pinkie promise.</div>
+            <div className="row" style={{marginTop:8}}>
               <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} min="1" step="0.01" placeholder="Amount you paid (e.g. 10.00)" />
             </div>
-            <div style={{marginTop:8,display:'flex',gap:12,alignItems:'center'}}>
-              <button type="button" onClick={copyVenmo}>Copy Venmo username</button>
-              <label style={{fontWeight:400}}><input type="checkbox" checked={pinkie} onChange={e=>setPinkie(e.target.checked)} /> I pinkie promise I paid</label>
-            </div>
+            <label className="checkbox"><input type="checkbox" checked={pinkie} onChange={e=>setPinkie(e.target.checked)} /> I pinkie promise I paid</label>
+            <button type="button" className="ghost" onClick={copyVenmo}>Copy Venmo username</button>
           </div>
         )}
 
-        <div className="actions" style={{marginTop:14}}>
-          <button onClick={handleSubmit} disabled={loading}>{loading ? 'Submitting...' : 'Submit question'}</button>
-          <div className="right muted small">You will receive replies by email when William answers.</div>
+        <div className="actions">
+          <button onClick={handleSubmit} disabled={loading}>{loading ? 'Submitting...' : 'Ask Coyne AI'}</button>
+          <span className="hint">Replies arrive by email once William reviews your submission.</span>
         </div>
-      </div>
+      </section>
 
       {notice && <div className="notice">{notice}</div>}
 
-      <footer>
-        <div className="small">Submissions are stored on the server; answers are emailed from the admin interface. See the repo `server/` folder for deployment instructions.</div>
+      <footer className="footer-note">
+        Coyne AI is your gateway to living advice — questions are collected and William answers personally. This interface is built for a sleek, futuristic experience.
       </footer>
     </div>
   )

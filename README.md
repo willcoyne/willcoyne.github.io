@@ -1,71 +1,61 @@
-How this site works
--------------------
+Coyne AI
+========
 
-This is a simple static site that lets visitors submit questions or prompts to William. There are two options:
+Coyne AI is a dark-mode advice portal where visitors can ask a living AI for help with problems, plans, or creative ideas. The site is built as a static React frontend that sends submissions to William for personal response.
 
-- Free: submit a question for William to answer in regular order.
-- Paid priority: visitor pays an amount (via PayPal.me) and marks the submission as priority.
+How it works
+------------
 
-How submissions are delivered
-----------------------------
+- Visitors enter their name, email, and question.
+- They can choose free advice or paid priority handling.
+- The form is submitted from the frontend and delivered using the configured email/form provider.
 
-This static site does not include a server. When a visitor clicks "Submit question" it opens the visitor's email client with a pre-filled email addressed to the owner email configured in `index.html`.
+Key features
+------------
 
-Configuration (required)
-------------------------
+- Futuristic dark theme with a polished, modern interface.
+- Simple question submission workflow.
+- Priority option for faster review.
+- No server required if Formspree is used.
 
-1. Open `index.html` and edit the script near the bottom.
-2. Set `ownerEmail` to the email address that should receive submissions.
-3. (Optional) Set `paypalMe` to your PayPal.me username so the "Pay with PayPal" button opens your payment link.
-
-Notes on paid priority
-----------------------
-
-- The site is static and cannot automatically verify payments. The current flow is:
-  1. Visitor enters an amount and clicks "Pay with PayPal" which opens `https://paypal.me/YOURNAME/AMOUNT`.
-  2. After completing payment, the visitor pastes the payment transaction ID into the form and submits.
-  3. The form opens the visitor's email client to send the question and transaction ID to the owner. The owner manually verifies payment.
-
-Optional: automatic backend
----------------------------
-
-If you want automatic delivery and payment verification, consider one of these approaches:
-
-- Use Formspree or Netlify Forms to receive submissions server-side and send email notifications.
-- Use Stripe with a small server (e.g., serverless function) to create Checkout sessions for variable amounts and receive webhooks to mark priority automatically.
-
-If you want, I can help integrate Formspree/Netlify or scaffold a small serverless Stripe endpoint — tell me which provider you'd prefer and your hosting choice.
-
-Self-hosted server
-------------------
-
-This repo now includes a simple self-hosted server scaffold under the `server/` folder that stores submissions in MySQL and can send answers via SMTP. See `server/README.md` for setup steps.
-The React app also includes a basic admin UI available at `/admin` that accepts your `ADMIN_API_KEY` to list and answer submissions.
-
-Local testing
--------------
-
-Open `index.html` in a browser to test the UI. Configure `ownerEmail` before relying on the mailto submission.
-
-Vite + React
--------------
-
-This repository now includes a Vite + React scaffold. Install deps and run the dev server:
+Local development
+-----------------
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the local dev server URL printed by Vite to view the site.
+Then open the local Vite URL shown in the console.
 
-Security and privacy
---------------------
+Production build
+----------------
 
-- Email submission uses the visitor's email client — the message is sent by the visitor, not via this site.
-- Payments are handled by PayPal when the visitor clicks the payment link.
+```bash
+npm run build
+```
 
-Contact
--------
+This generates the static site in `dist/`.
 
-If you'd like me to wire up an automated backend (Formspree, Netlify, or Stripe serverless), reply with which service you prefer and I'll implement it.
+Deployment
+----------
+
+This repo uses GitHub Pages for hosting. The preferred flow is to publish the built static output from the `gh-pages` branch or from a `docs/` folder on `main`.
+
+Formspree support
+-----------------
+
+If `VITE_FORMSPREE_ENDPOINT` is set at build time, the app will post form data directly to that endpoint. This avoids the need for a backend server.
+
+Repository contents
+-------------------
+
+- `src/` — React application source files.
+- `public/` / `index.html` — static HTML shell.
+- `package.json` — frontend dependencies and scripts.
+- `vite.config.js` — Vite configuration.
+
+Removed backend files
+---------------------
+
+The older backend/server implementation and related Docker workflows have been removed to keep this repo frontend-only.
