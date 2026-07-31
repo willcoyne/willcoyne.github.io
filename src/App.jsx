@@ -120,9 +120,23 @@ export default function App(){
         <textarea value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Ask Coyne AI anything..." />
 
         <label>Response priority</label>
-        <div className="row choices">
-          <label className="radio"><input type="radio" checked={tier==='free'} onChange={()=>setTier('free')} /> Free advice</label>
-          <label className="radio"><input type="radio" checked={tier==='paid'} onChange={()=>setTier('paid')} /> Priority response</label>
+        <div className="tier-options" role="group" aria-label="Response priority">
+          <button
+            type="button"
+            className={`tier-option ${tier === 'free' ? 'active' : ''}`}
+            onClick={() => setTier('free')}
+          >
+            <span className="tier-title">Free advice</span>
+            <span className="tier-copy">Standard response, no payment required</span>
+          </button>
+          <button
+            type="button"
+            className={`tier-option ${tier === 'paid' ? 'active' : ''}`}
+            onClick={() => setTier('paid')}
+          >
+            <span className="tier-title">Priority response</span>
+            <span className="tier-copy">Fast-tracked help with paid priority</span>
+          </button>
         </div>
 
         {tier === 'paid' && (

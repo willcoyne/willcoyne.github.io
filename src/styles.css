@@ -27,9 +27,13 @@ button:focus-visible{outline:3px solid rgba(77,215,255,0.65);outline-offset:3px}
 .small{font-size:13px;color:var(--muted)}
 .footer-note{padding:24px 44px 36px;color:var(--muted);font-size:0.98rem;line-height:1.75}
 .right{margin-left:auto}
-.radio{font-weight:400;display:inline-flex;align-items:center;gap:10px;font-size:1rem;color:#e4efff}
-.radio input{accent-color:var(--accent)}
+.tier-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.tier-option{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:16px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:18px;background:rgba(7,12,24,0.92);color:#eaf3ff;text-align:left;min-height:92px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.tier-option.active{border-color:rgba(124,92,255,0.6);background:linear-gradient(135deg, rgba(124,92,255,0.2), rgba(77,215,255,0.13));box-shadow:0 14px 30px rgba(10,15,33,0.28)}
+.tier-option:hover{transform:translateY(-1px);border-color:rgba(124,92,255,0.35)}
+.tier-title{font-weight:700;font-size:1rem}
+.tier-copy{font-size:0.92rem;line-height:1.45;color:var(--muted)}
 .checkbox{display:flex;align-items:center;gap:10px;font-weight:400;color:#e4efff;margin-top:14px}
 .hint{color:var(--muted);font-size:0.97rem}
 @media(max-width:900px){body{padding:18px}.hero{padding:32px 28px 22px;grid-template-columns:1fr}.status-card{width:100%;}.form-card{padding:28px 28px 34px}} 
-@media(max-width:680px){.hero{gap:18px}.eyebrow{padding:6px 12px}.h1{font-size:2.4rem}.lead{margin-bottom:24px}.form-card{padding:24px 22px 28px}.row{flex-direction:column;gap:12px}.actions{flex-direction:column;align-items:stretch;gap:12px}.actions button,.paybox button{width:100%}.status-card{padding:18px 20px}.footer-note{padding:20px 22px}.radio,input[type=text],input[type=email],textarea,input[type=number]{font-size:1rem}}
+@media(max-width:680px){.hero{gap:18px}.eyebrow{padding:6px 12px}.h1{font-size:2.4rem}.lead{margin-bottom:24px}.form-card{padding:24px 22px 28px}.row{flex-direction:column;gap:12px}.actions{flex-direction:column;align-items:stretch;gap:12px}.actions button,.paybox button{width:100%}.tier-options{grid-template-columns:1fr;gap:10px}.tier-option{min-height:84px}.status-card{padding:18px 20px}.footer-note{padding:20px 22px}.radio,input[type=text],input[type=email],textarea,input[type=number]{font-size:1rem}}
