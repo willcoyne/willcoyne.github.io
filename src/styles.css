@@ -23,6 +23,10 @@ button:focus-visible{outline:3px solid rgba(77,215,255,0.65);outline-offset:3px}
 .ghost{background:transparent;border:1px solid rgba(124,92,255,0.45);box-shadow:none;color:#dce8ff}
 .muted{color:var(--muted);font-size:13px}
 .paybox{padding:20px;border:1px dashed rgba(124,92,255,0.32);border-radius:22px;margin-top:18px;background:rgba(10,16,31,0.95)}
+.pay-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.pinkie-button{flex:1;min-width:0;width:100%;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.3);color:#dce8ff;padding:14px 16px;border-radius:16px;font-weight:700;cursor:pointer;transition:transform .18s ease,background .18s ease,border-color .18s ease;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:10px;line-height:1.2}
+.pinkie-button.active{background:linear-gradient(135deg, rgba(124,92,255,0.25), rgba(77,215,255,0.16));border-color:rgba(124,92,255,0.75)}
+.pinkie-button:hover{transform:translateY(-1px)}
 .notice{margin-top:24px;padding:18px 20px;border-radius:20px;border:1px solid rgba(77,215,255,0.23);background:rgba(11,19,35,0.94);color:#e4efff}
 .small{font-size:13px;color:var(--muted)}
 .footer-note{padding:24px 44px 36px;color:var(--muted);font-size:0.98rem;line-height:1.75}
