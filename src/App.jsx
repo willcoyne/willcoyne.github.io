@@ -153,7 +153,14 @@ export default function App(){
             <div className="row" style={{marginTop:8}}>
               <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} min="1" step="0.01" placeholder="Amount you paid (e.g. 10.00)" />
             </div>
-            <label className="checkbox"><input type="checkbox" checked={pinkie} onChange={e=>setPinkie(e.target.checked)} /> I pinkie promise I paid</label>
+            <button
+              type="button"
+              className={`pinkie-button ${pinkie ? 'active' : ''}`}
+              aria-pressed={pinkie}
+              onClick={() => setPinkie(prev => !prev)}
+            >
+              {pinkie ? '✅ I pinkie promise I paid' : 'I pinkie promise I paid'}
+            </button>
             <button type="button" className="ghost" onClick={copyVenmo}>Copy Venmo username</button>
           </div>
         )}

@@ -34,6 +34,9 @@ button:focus-visible{outline:3px solid rgba(77,215,255,0.65);outline-offset:3px}
 .tier-title{font-weight:700;font-size:1rem}
 .tier-copy{font-size:0.92rem;line-height:1.45;color:var(--muted)}
 .checkbox{display:flex;align-items:center;gap:10px;font-weight:400;color:#e4efff;margin-top:14px}
+.pinkie-button{width:100%;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.3);color:#dce8ff;padding:14px 18px;border-radius:16px;font-weight:700;cursor:pointer;transition:transform .18s ease,background .18s ease,border-color .18s ease;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;line-height:1.2}
+.pinkie-button.active{background:linear-gradient(135deg, rgba(124,92,255,0.25), rgba(77,215,255,0.16));border-color:rgba(124,92,255,0.7)}
+.pinkie-button:hover{transform:translateY(-1px)}
 .hint{color:var(--muted);font-size:0.97rem}
 @media(max-width:900px){body{padding:18px}.hero{padding:32px 28px 22px;grid-template-columns:1fr}.status-card{width:100%;}.form-card{padding:28px 28px 34px}} 
 @media(max-width:680px){.hero{gap:18px}.eyebrow{padding:6px 12px}.h1{font-size:2.4rem}.lead{margin-bottom:24px}.form-card{padding:24px 22px 28px}.row{flex-direction:column;gap:12px}.actions{flex-direction:column;align-items:stretch;gap:12px}.actions button,.paybox button{width:100%}.tier-options{grid-template-columns:1fr;gap:10px}.tier-option{min-height:84px}.status-card{padding:18px 20px}.footer-note{padding:20px 22px}.radio,input[type=text],input[type=email],textarea,input[type=number]{font-size:1rem}}
