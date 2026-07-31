@@ -51,10 +51,18 @@ export default function App(){
       const body = { name, email, question, tier, amount: tier==='paid' ? Number(amount) : null }
 
       if(FORMSPREE_ENDPOINT){
+        // Formspree expects form-encoded fields; send as URLSearchParams
+        const params = new URLSearchParams()
+        if(name) params.append('name', name)
+        params.append('email', email)
+        params.append('message', question)
+        params.append('tier', tier)
+        if(tier === 'paid') params.append('amount', amount)
+
         const res = await fetch(FORMSPREE_ENDPOINT, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(body)
+          headers: { 'Accept': 'application/json' },
+          body: params
         })
         if(res.ok){
           setNotice('Submitted! Coyne AI will receive your question and William will respond by email.')
