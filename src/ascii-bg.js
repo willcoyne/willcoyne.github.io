@@ -128,7 +128,7 @@ if (field && glyphs && button) start()
 function start() {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   let grid = layout()
-  let theme = 0
+  let theme = THEMES.findIndex((t) => t.id === 'stars') // default; the button rotates from here
   let t = 0
 
   function layout() {

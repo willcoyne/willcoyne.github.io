@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>will coyne</title>
     <style>
-      :root{--text:#e7edf7;--muted:#7f8ea8;--line:rgba(255,255,255,0.10);--art:#6bff9a;--art-dim:rgba(80,255,150,0.20);--art-glow:rgba(80,255,150,0.30);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+      /* :root carries the starfield palette, the default theme */
+      :root{--text:#e7edf7;--muted:#7f8ea8;--line:rgba(255,255,255,0.10);--art:#e9e5ff;--art-dim:rgba(200,210,255,0.20);--art-glow:rgba(180,190,255,0.35);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+      body[data-theme="matrix"]{--art:#6bff9a;--art-dim:rgba(80,255,150,0.20);--art-glow:rgba(80,255,150,0.30)}
       body[data-theme="wave"]{--art:#4dd7ff;--art-dim:rgba(77,215,255,0.20);--art-glow:rgba(77,215,255,0.35)}
       body[data-theme="fire"]{--art:#ffb347;--art-dim:rgba(255,120,40,0.22);--art-glow:rgba(255,140,50,0.35)}
       body[data-theme="stars"]{--art:#e9e5ff;--art-dim:rgba(200,210,255,0.20);--art-glow:rgba(180,190,255,0.35)}
