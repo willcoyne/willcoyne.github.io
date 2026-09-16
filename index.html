@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>will coyne</title>
+    <style>
+      /* :root carries the starfield palette, the default theme */
+      :root{--text:#e7edf7;--muted:#7f8ea8;--line:rgba(255,255,255,0.10);--art:#e9e5ff;--art-dim:rgba(200,210,255,0.20);--art-glow:rgba(180,190,255,0.35);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+      body[data-theme="matrix"]{--art:#6bff9a;--art-dim:rgba(80,255,150,0.20);--art-glow:rgba(80,255,150,0.30)}
+      body[data-theme="wave"]{--art:#4dd7ff;--art-dim:rgba(77,215,255,0.20);--art-glow:rgba(77,215,255,0.35)}
+      body[data-theme="fire"]{--art:#ffb347;--art-dim:rgba(255,120,40,0.22);--art-glow:rgba(255,140,50,0.35)}
+      body[data-theme="stars"]{--art:#e9e5ff;--art-dim:rgba(200,210,255,0.20);--art-glow:rgba(180,190,255,0.35)}
+      body[data-theme="circuit"]{--art:#b79bff;--art-dim:rgba(124,92,255,0.22);--art-glow:rgba(124,92,255,0.35)}
+      *{box-sizing:border-box}
+      body{margin:0;padding:28px 20px 90px;min-height:100vh;background:#02040c;color:var(--text);font:14px/1.6 var(--mono)}
+
+      /* Animated ASCII art of the name, out in the margins */
+      .ascii-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+      .ascii-art{position:absolute;top:0;left:0;margin:0;white-space:pre;font:12px/12px var(--mono)}
+      #ascii-field{color:var(--art-dim)}
+      #ascii-glyph{color:var(--art);text-shadow:0 0 12px var(--art-glow)}
+
+      .wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:34px 32px 38px;background:rgba(2,5,14,0.93);border:1px solid var(--line);border-radius:3px}
+      h1{margin:0;font-size:1.6rem;font-weight:500;letter-spacing:0.22em}
+      h1::after{content:"\2588";margin-left:6px;color:var(--art);animation:blink 1.1s steps(1) infinite}
+      @keyframes blink{50%{opacity:0}}
+      .sub{margin:6px 0 0;color:var(--muted);font-size:0.82rem;letter-spacing:0.08em}
+
+      h2{display:flex;align-items:center;gap:14px;margin:38px 0 14px;font-size:0.72rem;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--art)}
+      h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+      .btns{display:flex;flex-wrap:wrap;gap:10px}
+      .btn{display:inline-block;padding:9px 16px;border:1px solid rgba(255,255,255,0.18);border-radius:2px;color:var(--text);font:inherit;background:none;text-decoration:none;cursor:pointer;transition:color .15s,border-color .15s}
+      .btn:hover{color:var(--art);border-color:var(--art)}
+
+      .row{display:flex;gap:18px;padding:9px 12px;border-left:2px solid transparent;color:var(--text);text-decoration:none;transition:border-color .15s,background .15s}
+      .row:hover{border-left-color:var(--art);background:rgba(255,255,255,0.03)}
+      .row:hover .k{color:var(--art)}
+      .row.pin{border-left-color:#ffcf4d;background:rgba(255,207,77,0.06)}
+      .row.pin .k{color:#ffcf4d}
+      .row.pin:hover{border-left-color:#ffcf4d;background:rgba(255,207,77,0.13)}
+      .k{flex:0 0 10ch;color:var(--muted);transition:color .15s}
+      .v{color:var(--muted);font-size:0.88rem}
+      .row:hover .v{color:var(--text)}
+
+      iframe{width:100%;height:min(78vh,980px);margin-top:14px;border:1px solid var(--line);border-radius:2px;background:#fff}
+
+      .theme-btn{position:fixed;right:20px;bottom:20px;z-index:3;background:rgba(2,5,14,0.9)}
+      a:focus-visible,button:focus-visible{outline:2px solid var(--art);outline-offset:3px}
+      @media(max-width:700px){body{padding:18px 14px 84px}.wrap{padding:26px 20px 30px}h1{font-size:1.3rem;letter-spacing:0.16em}.k{flex:0 0 9ch}.row{gap:12px}iframe{height:70vh}.theme-btn{right:14px;bottom:14px}}
+      @media(prefers-reduced-motion:reduce){h1::after{animation:none}}
+    </style>
+    <script type="module" crossorigin src="/assets/home-DmWMp5DA.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-P2Xu9kJm.js">
+  </head>
+  <body>
+    <div class="ascii-layer" aria-hidden="true">
+      <pre class="ascii-art" id="ascii-field"></pre>
+      <pre class="ascii-art" id="ascii-glyph"></pre>
+    </div>
+
+    <div class="wrap">
+      <h1>will coyne</h1>
+      <p class="sub">coyne.w@wustl.edu</p>
+
+      <h2>resume</h2>
+      <div class="btns">
+        <a class="btn" href="/William-Coyne-Resume.pdf" download="William Coyne Resume.pdf">download pdf</a>
+        <a class="btn" href="/William-Coyne-Resume.pdf" target="_blank" rel="noopener">open in tab</a>
+      </div>
+      <iframe src="/William-Coyne-Resume.pdf" title="resume"></iframe>
+
+      <h2>projects</h2>
+      <a class="row pin" href="https://github.com/willcoyne/job-saver-extension" target="_blank" rel="noopener"><span class="k">job saver</span><span class="v">github.com/willcoyne/job-saver-extension</span></a>
+      <a class="row" href="/coyne-ai/"><span class="k">coyne ai</span><span class="v">ask a living ai for advice</span></a>
+      <a class="row" href="/phnordle/"><span class="k">phnordle</span><span class="v">word game</span></a>
+      <a class="row" href="https://washusigmachi.org" target="_blank" rel="noopener"><span class="k">sigma chi</span><span class="v">washusigmachi.org &mdash; designed and built</span></a>
+
+      <h2>links</h2>
+      <a class="row" href="https://www.linkedin.com/in/will-coyne" target="_blank" rel="noopener"><span class="k">linkedin</span><span class="v">in/will-coyne</span></a>
+      <a class="row" href="https://github.com/willcoyne" target="_blank" rel="noopener"><span class="k">github</span><span class="v">@willcoyne</span></a>
+      <a class="row" href="https://www.instagram.com/willycoyne" target="_blank" rel="noopener"><span class="k">instagram</span><span class="v">@willycoyne</span></a>
+      <a class="row" href="mailto:coyne.w@wustl.edu"><span class="k">email</span><span class="v">coyne.w@wustl.edu</span></a>
+    </div>
+
+    <button class="btn theme-btn" id="theme-btn" type="button" aria-label="rotate background theme" hidden>theme</button>
+  </body>
+</html>
