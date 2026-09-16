@@ -15,35 +15,37 @@ const FONT = {
 }
 // Monospace cells are ~0.6 as wide as tall, so stretch horizontally to keep letters square.
 const ASPECT = 1.7
-const textWidth = (line) => line.length * (GW + 1) - 1
+const WORDS = ['WILL', 'COYNE'] // stacked vertically, left gutter and right gutter
+const WORD_H = Math.max(...WORDS.map((w) => w.length)) * (GH + 1) - 1
 
-// mask[y * cols + x] === 1 where the name's glyphs are lit.
-export function buildMask(cols, rows) {
-  // One line when there is room for it, otherwise stack the two words.
-  const lines = cols * 0.9 >= textWidth('WILL COYNE') ? ['WILL COYNE'] : ['WILL', 'COYNE']
-  const width = Math.max(...lines.map(textWidth))
-  const height = lines.length * GH + (lines.length - 1) // one blank row between lines
-
-  // Fit inside the grid first, then keep the glyphs square.
-  let sx = Math.max(1, Math.floor((cols * 0.9) / width))
-  let sy = Math.max(1, Math.floor((rows * 0.6) / height))
-  sy = Math.min(sy, Math.max(1, Math.round(sx / ASPECT)))
-  sx = Math.min(sx, Math.max(1, Math.round(sy * ASPECT)))
-
-  const x0 = Math.max(0, Math.floor((cols - width * sx) / 2))
-  const y0 = Math.max(0, Math.floor((rows - height * sy) / 2))
+// mask[y * cols + x] === 1 where the name's glyphs are lit. `gutter` is how many
+// columns are free beside the page content, so the art never lands under the text.
+export function buildMask(cols, rows, gutter) {
   const mask = new Uint8Array(cols * rows)
+  const out = { mask, cols, rows, gutter, sx: 1, sy: 1, words: WORDS }
+  if (!(gutter >= GW) || rows < WORD_H) return out // no room: field animation only
 
-  lines.forEach((line, li) => {
-    const lineX = x0 + Math.floor(((width - textWidth(line)) * sx) / 2)
-    const lineY = y0 + li * (GH + 1) * sy
-    for (let i = 0; i < line.length; i++) {
-      const glyph = FONT[line[i]]
+  // Fit the gutter first, then keep the glyphs square.
+  const sy = Math.max(1, Math.min(
+    Math.floor(rows * 0.92 / WORD_H),
+    Math.floor(Math.floor(gutter * 0.8 / GW) / ASPECT),
+  ))
+  const sx = Math.max(1, Math.min(
+    Math.floor(gutter * 0.8 / GW),
+    Math.round(sy * ASPECT),
+  ))
+
+  WORDS.forEach((word, wi) => {
+    const pad = Math.floor((gutter - GW * sx) / 2)
+    const x0 = wi === 0 ? pad : cols - gutter + pad
+    const y0 = Math.floor((rows - (word.length * (GH + 1) - 1) * sy) / 2)
+    for (let li = 0; li < word.length; li++) {
+      const glyph = FONT[word[li]]
       for (let gy = 0; gy < GH; gy++) {
         for (let gx = 0; gx < GW; gx++) {
           if (glyph[gy][gx] !== '#') continue
-          const bx = lineX + (i * (GW + 1) + gx) * sx
-          const by = lineY + gy * sy
+          const bx = x0 + gx * sx
+          const by = y0 + (li * (GH + 1) + gy) * sy
           for (let dy = 0; dy < sy; dy++) {
             for (let dx = 0; dx < sx; dx++) {
               const x = bx + dx, y = by + dy
@@ -54,7 +56,7 @@ export function buildMask(cols, rows) {
       }
     }
   })
-  return { mask, cols, rows, x0, y0, sx, sy, lines }
+  return { ...out, sx, sy }
 }
 
 // Cheap deterministic noise so themes look random without keeping state.
@@ -138,7 +140,15 @@ function start() {
     const box = probe.getBoundingClientRect()
     probe.remove()
     const cw = box.width / 50, ch = box.height / 2
-    return buildMask(Math.ceil(innerWidth / cw) + 1, Math.ceil(innerHeight / ch) + 1)
+
+    // Free space beside the content column, in character cells.
+    const card = document.querySelector('.wrap').getBoundingClientRect()
+    const free = Math.min(card.left, innerWidth - card.right) - 10
+    return buildMask(
+      Math.ceil(innerWidth / cw) + 1,
+      Math.ceil(innerHeight / ch) + 1,
+      Math.floor(free / cw),
+    )
   }
 
   function draw() {
@@ -161,7 +171,7 @@ function start() {
 
   function apply() {
     document.body.dataset.theme = THEMES[theme].id
-    button.textContent = 'Theme: ' + THEMES[theme].label
+    button.textContent = '[ ' + THEMES[theme].label.toLowerCase() + ' ]'
     draw()
   }
 
