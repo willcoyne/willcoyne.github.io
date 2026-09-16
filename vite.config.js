@@ -1,7 +1,14 @@
 import { defineConfig } from 'vite'
 
-// Proxy /api requests to the local backend during development
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      input: {
+        home: 'index.html',
+        coyneAi: 'coyne-ai/index.html',
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {
