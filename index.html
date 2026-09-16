@@ -5,34 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>William Coyne</title>
     <style>
-      :root{--bg:#02040f;--border:#1e2e58;--accent:#7c5cff;--accent-2:#4dd7ff;--text:#f4f8ff;--muted:#b2c2ea}
+      :root{--bg:#02040f;--border:#1e2e58;--accent:#7c5cff;--accent-2:#4dd7ff;--text:#f4f8ff;--muted:#b2c2ea;--art:#6bff9a;--art-dim:rgba(80,255,150,0.20);--art-glow:rgba(80,255,150,0.35)}
+      body[data-theme="wave"]{--art:#4dd7ff;--art-dim:rgba(77,215,255,0.20);--art-glow:rgba(77,215,255,0.40)}
+      body[data-theme="fire"]{--art:#ffb347;--art-dim:rgba(255,120,40,0.22);--art-glow:rgba(255,140,50,0.40)}
+      body[data-theme="stars"]{--art:#e9e5ff;--art-dim:rgba(200,210,255,0.20);--art-glow:rgba(180,190,255,0.40)}
+      body[data-theme="circuit"]{--art:#b79bff;--art-dim:rgba(124,92,255,0.22);--art-glow:rgba(124,92,255,0.40)}
       *{box-sizing:border-box}
       body{margin:0;padding:24px;min-height:100vh;background:radial-gradient(circle at top left, rgba(124,215,255,0.14), transparent 28%), linear-gradient(180deg,#02040f 0%,#070b18 100%);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
-      .wrap{max-width:920px;margin:0 auto;background:linear-gradient(180deg, rgba(9,17,34,0.96), rgba(6,10,21,0.96));border:1px solid rgba(255,255,255,0.07);box-shadow:0 26px 70px rgba(0,0,0,0.32);border-radius:28px;padding:42px}
+
+      /* Animated ASCII art of the name, behind everything */
+      .ascii-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+      .ascii-art{position:absolute;top:0;left:0;margin:0;white-space:pre;font:12px/12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+      #ascii-field{color:var(--art-dim)}
+      #ascii-glyph{color:var(--art);text-shadow:0 0 14px var(--art-glow)}
+      .theme-btn{position:fixed;right:18px;bottom:18px;z-index:3;padding:12px 18px;border:1px solid rgba(255,255,255,0.18);border-radius:16px;background:rgba(7,12,24,0.86);color:#eaf3ff;font:600 0.9rem Inter,system-ui,Arial,sans-serif;cursor:pointer;backdrop-filter:blur(6px)}
+      .theme-btn:hover{border-color:var(--art);color:var(--art)}
+
+      .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;background:linear-gradient(180deg, rgba(9,17,34,0.87), rgba(6,10,21,0.89));backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,0.07);box-shadow:0 26px 70px rgba(0,0,0,0.32);border-radius:28px;padding:42px}
       h1{margin:0 0 10px;font-size:3rem;line-height:1.02;letter-spacing:-0.05em}
       .lead{margin:0 0 28px;color:var(--muted);font-size:1.02rem;line-height:1.8}
       h2{margin:36px 0 14px;font-size:1.1rem;text-transform:uppercase;letter-spacing:0.16em;color:#9abfff;font-weight:700}
       .links{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-      a.btn{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:18px;background:rgba(7,12,24,0.92);color:#eaf3ff;text-decoration:none;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+      a.btn{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:18px;background:rgba(7,12,24,0.86);color:#eaf3ff;text-decoration:none;transition:transform .18s ease,border-color .18s ease,background .18s ease}
       a.btn:hover{transform:translateY(-1px);border-color:rgba(124,92,255,0.5);background:linear-gradient(135deg, rgba(124,92,255,0.18), rgba(77,215,255,0.1))}
       a.btn strong{font-size:1rem}
       a.btn span{font-size:0.9rem;color:var(--muted)}
       a.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:0;box-shadow:0 22px 45px rgba(124,92,255,0.22);color:#fff;text-align:center;align-items:center;font-weight:700;padding:18px 22px}
       a.primary span{color:rgba(255,255,255,0.85)}
+      .resume-head h2{margin:0}
       .resume-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
       .resume-actions{display:flex;gap:12px;flex-wrap:wrap}
       iframe{width:100%;height:min(80vh,1100px);margin-top:14px;border:1px solid rgba(255,255,255,0.12);border-radius:18px;background:#fff}
-      a:focus-visible{outline:3px solid rgba(77,215,255,0.65);outline-offset:3px}
-      @media(max-width:680px){body{padding:16px}.wrap{padding:26px 22px}h1{font-size:2.3rem}iframe{height:70vh}}
+      a:focus-visible,button:focus-visible{outline:3px solid rgba(77,215,255,0.65);outline-offset:3px}
+      @media(max-width:680px){body{padding:16px}.wrap{padding:26px 22px}h1{font-size:2.3rem}iframe{height:70vh}.theme-btn{right:12px;bottom:12px;padding:10px 14px}}
     </style>
   </head>
   <body>
+    <div class="ascii-layer" aria-hidden="true">
+      <pre class="ascii-art" id="ascii-field"></pre>
+      <pre class="ascii-art" id="ascii-glyph"></pre>
+    </div>
+    <button class="theme-btn" id="theme-btn" type="button" hidden>Theme</button>
+
     <div class="wrap">
       <h1>William Coyne</h1>
       <p class="lead">Resume, links, and the odd side project. Reach me any way below.</p>
 
       <div class="resume-head">
-        <h2 style="margin:0">Resume</h2>
+        <h2>Resume</h2>
         <div class="resume-actions">
           <a class="btn primary" href="/William-Coyne-Resume.pdf" download="William Coyne Resume.pdf">Download resume (PDF)</a>
           <a class="btn" href="/William-Coyne-Resume.pdf" target="_blank" rel="noopener"><strong>Open in new tab</strong></a>
@@ -44,7 +64,7 @@
       <div class="links">
         <a class="btn" href="/coyne-ai/"><strong>Coyne AI</strong><span>Ask a living AI for advice</span></a>
         <a class="btn" href="/phnordle/"><strong>Phnordle</strong><span>Word game</span></a>
-        <a class="btn" href="https://washusigmachi.org" target="_blank" rel="noopener"><strong>WashU Sigma Chi</strong><span>Chapter site — designed and built</span></a>
+        <a class="btn" href="https://washusigmachi.org" target="_blank" rel="noopener"><strong>WashU Sigma Chi</strong><span>Chapter site &mdash; designed and built</span></a>
       </div>
 
       <h2>Elsewhere</h2>
@@ -55,5 +75,6 @@
         <a class="btn" href="mailto:coyne.w@wustl.edu"><strong>Email</strong><span>coyne.w@wustl.edu</span></a>
       </div>
     </div>
+    <script type="module" src="/src/ascii-bg.js"></script>
   </body>
 </html>
