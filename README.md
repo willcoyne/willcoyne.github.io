@@ -1,3 +1,14 @@
+willcoyne.us
+============
+
+- `/` is a walkable 3D room (React Three Fiber). WASD to walk, mouse to look, click the walls to open the
+  resume, projects, and links. Touch devices get drag-to-look and a joystick. Source: `src/room/`.
+- `/classic/` is the previous terminal-style page, kept as a backup. Browsers without WebGL are sent there.
+- `/coyne-ai/` is Coyne AI (below).
+
+To add a project or change a link, edit `src/room/content.js`; the walls and the in-room menu both read from it.
+The resume on the wall is rendered from `public/William-Coyne-Resume.pdf`, so replacing that file updates it.
+
 Coyne AI
 ========
 

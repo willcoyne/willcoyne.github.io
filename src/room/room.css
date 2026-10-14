@@ -1,0 +1,58 @@
+:root{--ink:#1d1f24;--muted:#6b7280;--paper:#fbfaf7;--line:rgba(29,31,36,0.12);--accent:#6d5cff;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}
+html,body,#room-root{margin:0;height:100%;overflow:hidden;background:#f1efea;color:var(--ink);font:14px/1.6 var(--mono)}
+
+.room{position:fixed;inset:0}
+.room canvas{display:block;touch-action:none}
+.room.is-playing canvas{cursor:none}
+
+/* HUD */
+.hud{position:absolute;inset:0;pointer-events:none}
+.crosshair{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(29,31,36,0.7);box-shadow:0 0 0 2px rgba(255,255,255,0.7);transition:transform .12s,background .12s}
+.crosshair.on{transform:scale(2.2);background:var(--accent)}
+.hint{position:absolute;left:50%;top:calc(50% + 26px);transform:translateX(-50%);padding:6px 12px;border-radius:3px;background:rgba(29,31,36,0.86);color:var(--paper);font-size:13px;white-space:nowrap}
+.hint kbd{border-color:rgba(255,255,255,0.3);color:var(--paper)}
+.corner{position:absolute;top:16px;right:16px;color:var(--muted);font-size:12px;pointer-events:auto}
+.corner .btn{background:rgba(251,250,247,0.9)}
+
+kbd{display:inline-block;min-width:1.9em;margin-right:4px;padding:0 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;font:inherit;font-size:0.85em;text-align:center;color:var(--ink)}
+
+/* Menu + viewer */
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(241,239,234,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow:auto}
+.card{width:min(520px,100%);max-height:100%;overflow:auto;padding:30px 30px 24px;background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:0 20px 60px rgba(29,31,36,0.15)}
+.card h1{margin:0;font-size:1.5rem;font-weight:500;letter-spacing:0.2em}
+.sub{margin:4px 0 0;color:var(--muted);font-size:0.82rem}
+
+.enter{display:block;width:100%;margin:22px 0 18px;padding:14px;border:1px solid var(--ink);border-radius:3px;background:var(--ink);color:var(--paper);font:inherit;font-size:0.95rem;letter-spacing:0.06em;cursor:pointer;transition:background .15s,border-color .15s}
+.enter:hover{background:var(--accent);border-color:var(--accent)}
+
+.controls{list-style:none;margin:0;padding:0;display:grid;gap:6px;color:var(--ink);font-size:0.86rem}
+.dim{color:var(--muted)}
+
+.directory{margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+.directory summary{cursor:pointer;color:var(--muted);font-size:0.84rem}
+.directory summary:hover{color:var(--ink)}
+.directory h2{margin:18px 0 8px;font-size:0.7rem;font-weight:500;letter-spacing:0.26em;text-transform:uppercase;color:var(--accent)}
+
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-block;padding:7px 13px;border:1px solid rgba(29,31,36,0.22);border-radius:3px;background:none;color:var(--ink);font:inherit;font-size:0.84rem;text-decoration:none;cursor:pointer;transition:color .15s,border-color .15s}
+.btn:hover{color:var(--accent);border-color:var(--accent)}
+
+.row{display:flex;gap:14px;padding:7px 10px;border-left:2px solid transparent;color:var(--ink);text-decoration:none}
+.row:hover{border-left-color:var(--accent);background:rgba(29,31,36,0.03)}
+.k{flex:0 0 10ch}
+.v{color:var(--muted);font-size:0.84rem}
+
+.classic{display:inline-block;margin-top:18px;color:var(--muted);font-size:0.82rem;text-decoration:none}
+.classic:hover{color:var(--accent)}
+
+.viewer{display:flex;flex-direction:column;width:min(900px,100%);height:100%;background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:0 20px 60px rgba(29,31,36,0.18);overflow:hidden}
+.viewer-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.viewer iframe{flex:1;width:100%;border:0;background:#fff}
+
+/* Touch joystick */
+.joystick{position:absolute;left:28px;bottom:calc(28px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(29,31,36,0.10);border:1px solid rgba(29,31,36,0.18);pointer-events:auto;touch-action:none}
+.joystick-knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(29,31,36,0.55)}
+
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:600px){.card{padding:24px 20px 20px}.k{flex:0 0 9ch}}

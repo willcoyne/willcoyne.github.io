@@ -5,6 +5,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         home: 'index.html',
+        classic: 'classic/index.html',
         coyneAi: 'coyne-ai/index.html',
       },
     },
