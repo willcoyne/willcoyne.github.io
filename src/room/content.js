@@ -63,14 +63,14 @@ export const grocerez = {
   host: 'github.com/willcoyne/grocerez',
 }
 
-// The back wall, right of the door. `href` is optional; without one a badge
-// just shows its label when you look at it.
+// The back wall, right of the door, in two rows; the first half goes on top.
+// `href` is optional; without one a badge just shows its label when you look at it.
 export const badges = [
   {
     id: 'security-plus', shape: 'hex', color: '#c8102e',
     top: 'CompTIA', big: 'Security+', bottom: 'SY0-701', caption: 'certified · nov 2024',
     label: 'CompTIA Security+ certified (SY0-701), Nov 2024',
-    href: 'https://www.linkedin.com/in/will-coyne',
+    href: 'https://www.credly.com/badges/a37a2143-a249-4741-b56c-e9658b4a88ea/linked_in_profile',
   },
   {
     id: 'hackmidwest', shape: 'circle', color: '#f26b21',
@@ -84,15 +84,38 @@ export const badges = [
     label: "Dean's List, WashU, Fall 2025",
   },
   {
-    id: 'track', shape: 'shield', color: '#007360',
-    top: 'WashU', big: 'T&F', bottom: 'athlete', caption: 'track & field',
-    label: 'Collegiate student-athlete, WashU Track & Field',
+    id: 'ap-scholar', shape: 'hex', color: '#0077c8',
+    top: 'College Board', big: 'AP', bottom: 'scholar', caption: 'with distinction 2025',
+    label: 'AP Scholar with Distinction, College Board, 2025',
   },
   {
-    id: 'ignatian', shape: 'circle', color: '#4b2e83',
-    top: 'Ignatian', big: 'Honors', bottom: 'capstone', caption: 'honors program 2025',
-    label: 'Ignatian Honors Program capstone, 2025',
-    href: 'https://github.com/willcoyne/Capstone-2025',
+    id: 'loker-medal', shape: 'circle', color: '#a67c00',
+    top: 'Dr. Ford', big: 'Loker', bottom: 'medal', caption: 'loyola blakefield 2025',
+    label: 'Doctor Ford Loker Medal, Loyola Blakefield 2025: varsity letter + academic excellence',
+  },
+  {
+    id: 'ustfccca', shape: 'shield', color: '#007360',
+    top: 'USTFCCCA', big: 'T&F', bottom: 'WashU', caption: 'all-academic 2026',
+    label: 'USTFCCCA All-Academic, WashU Track & Field, 2026',
+    href: 'https://washubears.com/news/2026/7/21/mens-track-and-field-mens-track-and-field-named-ustfccca-all-academic-18-bears-earn-individual-honors.aspx',
+  },
+  {
+    id: 'all-state', shape: 'shield', color: '#1d3557',
+    top: 'Maryland', big: 'All-State', bottom: '1st team', caption: 'all-state t&f 2025',
+    label: 'Maryland All-State Track & Field 2025: Boys First Team + All-Senior Team',
+    href: 'https://md.milesplit.com/articles/379017/2025-maryland-all-state-tf-honors-boys-first-team',
+  },
+  {
+    id: 'all-metro', shape: 'circle', color: '#2b2d42',
+    top: 'Baltimore Sun', big: 'All-Metro', bottom: '1st team', caption: 'pole vault 2024–25',
+    label: 'Baltimore Sun All-Metro, pole vault: 1st team indoor 2024–25, 2nd team outdoor 2024',
+    href: 'https://www.baltimoresun.com/2025/04/10/all-metro-boys-indoor-track-and-field/',
+  },
+  {
+    id: 'all-miaa', shape: 'hex', color: '#4b2e83',
+    top: 'Track & Field', big: 'All-MIAA', bottom: '2024 + 2025', caption: 'indoor + outdoor',
+    label: 'All-MIAA Track & Field, indoor and outdoor, 2024 and 2025',
+    href: 'https://miaasports.net/2025_All-MIAA_Track_-_Field',
   },
 ]
 

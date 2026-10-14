@@ -233,24 +233,26 @@ function Grocerez({ hovered }) {
   )
 }
 
-function Badge({ b, position, hovered }) {
-  const w = 0.95, h = 1.15
-  const tex = useTexture(() => badge(b, w, h), [b])
+function Badge({ b, w, position, hovered }) {
+  const h = w * 1.2
+  const tex = useTexture(() => badge(b, w, h), [b, w, h])
   const exhibit = useMemo(() => ({ id: b.id, label: b.label, action: b.href ? linkAction(b.href) : null }), [b])
   return <Exhibit texture={tex} w={w} h={h} position={position} exhibit={exhibit} hovered={hovered} frame={false} />
 }
 
-// Two rows of badges between the door and the corner.
+// Two rows of badges between the door and the corner; they shrink a little
+// when a row gets crowded.
 function Badges({ hovered }) {
   const cols = Math.max(1, Math.ceil(badges.length / 2))
-  const gap = Math.min(1.4, 4.2 / cols)
+  const gap = Math.min(1.4, 5 / cols)
+  const w = Math.min(0.95, gap - 0.08)
   const x0 = 3.45 - ((cols - 1) * gap) / 2
   return (
     <>
       <Header text="badges" x={3.45} />
       {badges.map((b, i) => (
         <Badge
-          key={b.id} b={b} hovered={hovered}
+          key={b.id} b={b} w={w} hovered={hovered}
           position={[x0 + (i % cols) * gap + (i >= cols && badges.length % 2 ? gap / 2 : 0), i < cols ? 2.55 : 1.3, 0]}
         />
       ))}
