@@ -237,8 +237,8 @@ export function nameCard(email, w, h) {
 
     ctx.fillStyle = INK
     ctx.font = font(H * 0.062)
-    const rows = ['← projects', '→ links', '↻ behind you: GrocerEZ + badges']
-    rows.forEach((r, i) => ctx.fillText(r, pad, H * 0.66 + i * H * 0.085))
+    const rows = ['← projects', '→ links', '↻ behind you: GrocerEZ + badges', '↗ gallery: through the door']
+    rows.forEach((r, i) => ctx.fillText(r, pad, H * 0.63 + i * H * 0.08))
   })
 }
 
@@ -265,9 +265,9 @@ export function plaque(label, w, h) {
   })
 }
 
-export function header(text, w, h) {
+export function header(text, w, h, color = 'rgba(29,31,36,0.82)') {
   return paint(w, h, (ctx, W, H) => {
-    ctx.fillStyle = 'rgba(29,31,36,0.82)'
+    ctx.fillStyle = color
     ctx.font = font(H * 0.62, 500)
     ctx.textAlign = 'center'
     ctx.letterSpacing = `${Math.round(H * 0.18)}px`
@@ -334,4 +334,169 @@ export function floorDecal(touch, w, h) {
     ctx.font = font(H * 0.1)
     ctx.fillText(touch ? 'joystick to move · tap to open' : 'mouse to look · click to open', W / 2, H * 0.7)
   }, { transparent: true })
+}
+
+// Oak planks for the gallery floor; one tile is 2 x 2 units.
+export function woodFloor() {
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = 512
+  const ctx = canvas.getContext('2d')
+  const rows = 8
+  const ph = 512 / rows
+  for (let r = 0; r < rows; r++) {
+    const offset = ((r * 5) % 8) * 64 // stagger the joints
+    for (let i = 0; i < 2; i++) {
+      const x = offset + i * 256
+      const l = 50 + Math.random() * 10
+      ctx.fillStyle = `hsl(32, 42%, ${l}%)`
+      // draw twice so planks that run off the right edge wrap round to the left
+      for (const dx of [0, -512]) ctx.fillRect(x + dx, r * ph, 256, ph)
+      ctx.strokeStyle = `rgba(80,45,15,${0.08 + Math.random() * 0.06})`
+      ctx.lineWidth = 1.5
+      for (let g = 0; g < 5; g++) {
+        const y = r * ph + 6 + Math.random() * (ph - 12)
+        for (const dx of [0, -512]) {
+          ctx.beginPath()
+          ctx.moveTo(x + dx, y)
+          ctx.bezierCurveTo(x + dx + 80, y + 3, x + dx + 170, y - 3, x + dx + 256, y + Math.random() * 2)
+          ctx.stroke()
+        }
+      }
+      ctx.fillStyle = 'rgba(50,28,10,0.35)'
+      for (const dx of [0, -512]) ctx.fillRect(x + dx, r * ph, 2, ph)
+    }
+    ctx.fillStyle = 'rgba(50,28,10,0.35)'
+    ctx.fillRect(0, r * ph, 512, 2)
+  }
+  const tex = toTexture(canvas)
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+  return tex
+}
+
+// A patterned rug, long side across the texture, with fringe on the short ends.
+export function rug(w, h) {
+  return paint(w, h, (ctx, W, H) => {
+    const u = H / 34 // pattern unit
+    const fringe = u * 1.6
+    const x0 = fringe, x1 = W - fringe
+    const band = (inset, color) => {
+      ctx.fillStyle = color
+      ctx.fillRect(x0 + inset, inset, x1 - x0 - inset * 2, H - inset * 2)
+    }
+    const diamond = (cx, cy, rx, ry, color) => {
+      ctx.fillStyle = color
+      ctx.beginPath()
+      ctx.moveTo(cx, cy - ry)
+      ctx.lineTo(cx + rx, cy)
+      ctx.lineTo(cx, cy + ry)
+      ctx.lineTo(cx - rx, cy)
+      ctx.closePath()
+      ctx.fill()
+    }
+
+    ctx.strokeStyle = '#e9dfc8'
+    ctx.lineWidth = u * 0.18
+    for (let y = u * 0.6; y < H - u * 0.4; y += u * 0.45) {
+      for (const [a, b] of [[0, x0], [x1, W]]) {
+        ctx.beginPath()
+        ctx.moveTo(a, y)
+        ctx.lineTo(b, y)
+        ctx.stroke()
+      }
+    }
+
+    band(0, '#1f2a44')
+    band(u * 1.4, '#e8dcc0')
+    // a row of diamonds round the cream border
+    const bw = u * 3
+    for (let x = x0 + u * 3; x < x1 - u * 2.5; x += u * 1.6) {
+      diamond(x, u * 2.9, u * 0.6, u * 1.1, '#1f2a44')
+      diamond(x, H - u * 2.9, u * 0.6, u * 1.1, '#1f2a44')
+    }
+    for (let y = u * 4; y < H - u * 3.5; y += u * 1.6) {
+      diamond(x0 + u * 2.9, y, u * 1.1, u * 0.6, '#1f2a44')
+      diamond(x1 - u * 2.9, y, u * 1.1, u * 0.6, '#1f2a44')
+    }
+    band(u * 1.4 + bw, '#9a3b2c')
+    band(u * 1.4 + bw + u * 0.5, '#a4442f')
+
+    // lattice of small diamonds across the field
+    for (let y = u * 7; y < H - u * 6.5; y += u * 2) {
+      for (let x = x0 + u * 7; x < x1 - u * 6.5; x += u * 2) {
+        diamond(x + ((y / (u * 2)) % 2 ? u : 0), y, u * 0.35, u * 0.35, 'rgba(60,20,12,0.35)')
+      }
+    }
+
+    // central medallion and corner quarters
+    const cx = W / 2, cy = H / 2
+    const medallion = (x, y, s) => {
+      diamond(x, y, u * 9 * s, u * 6.5 * s, '#1f2a44')
+      diamond(x, y, u * 7.6 * s, u * 5.3 * s, '#e8dcc0')
+      diamond(x, y, u * 6.2 * s, u * 4.2 * s, '#c99a1e')
+      diamond(x, y, u * 4.4 * s, u * 3 * s, '#1f2a44')
+      diamond(x, y, u * 2 * s, u * 1.4 * s, '#e8dcc0')
+    }
+    medallion(cx, cy, 1)
+    ctx.save()
+    ctx.beginPath()
+    const ins = u * 1.4 + bw + u * 0.5
+    ctx.rect(x0 + ins, ins, x1 - x0 - ins * 2, H - ins * 2)
+    ctx.clip()
+    for (const [x, y] of [[x0 + ins, ins], [x1 - ins, ins], [x0 + ins, H - ins], [x1 - ins, H - ins]]) medallion(x, y, 0.6)
+    ctx.restore()
+  }, { transparent: true })
+}
+
+const MAT = '#f6f3ec'
+
+// A photo in a mat, w x h overall; `mat` is the border width in world units.
+export function artwork(img, w, h, mat) {
+  return paint(w, h, (ctx, W, H) => {
+    const m = (mat / w) * W
+    ctx.fillStyle = MAT
+    ctx.fillRect(0, 0, W, H)
+    ctx.drawImage(img, m, m, W - m * 2, H - m * 2)
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'
+    ctx.lineWidth = Math.max(1, W * 0.003)
+    ctx.strokeRect(m, m, W - m * 2, H - m * 2)
+  })
+}
+
+// An empty frame waiting for a photo: a soft color field in a mat, with `note` on the mat.
+const FIELDS = [
+  ['#c9b79c', '#a7684a', '#e3d6bf'], ['#8fa3a6', '#3f5f6b', '#cfd8d6'], ['#d8c3a5', '#8e7f6a', '#efe6d6'],
+  ['#b9a3b5', '#6e5468', '#e2d6df'], ['#a9b59a', '#5c6f4c', '#dde3d2'], ['#d6b9a0', '#b0573c', '#f0e2d2'],
+]
+export function placeholderArt(w, h, mat, i, note) {
+  return paint(w, h, (ctx, W, H) => {
+    const m = (mat / w) * W
+    const [base, deep, light] = FIELDS[i % FIELDS.length]
+    ctx.fillStyle = MAT
+    ctx.fillRect(0, 0, W, H)
+    const iw = W - m * 2, ih = H - m * 2
+    ctx.fillStyle = base
+    ctx.fillRect(m, m, iw, ih)
+    ctx.fillStyle = light
+    ctx.fillRect(m + iw * 0.08, m + ih * 0.08, iw * 0.84, ih * 0.5)
+    ctx.fillStyle = deep
+    ctx.fillRect(m + iw * 0.08, m + ih * 0.64, iw * 0.84, ih * 0.26)
+    ctx.fillStyle = 'rgba(29,31,36,0.6)'
+    ctx.textAlign = 'center'
+    fit(ctx, note, m * 0.58, iw, 500)
+    ctx.fillText(note, W / 2, H - m * 0.28)
+  })
+}
+
+// A soft pool of light thrown on the wall behind a picture.
+export function lightPool() {
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = 256
+  const ctx = canvas.getContext('2d')
+  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128)
+  g.addColorStop(0, 'rgba(255,238,205,0.55)')
+  g.addColorStop(0.55, 'rgba(255,238,205,0.22)')
+  g.addColorStop(1, 'rgba(255,238,205,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 256, 256)
+  return toTexture(canvas)
 }

@@ -5,11 +5,11 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ROOM } from './content'
+import { canStand } from './floorplan'
 import { stick } from './Joystick'
 
 const WALK = 3.2
 const SPRINT = 5.6
-const RADIUS = 0.45 // how close you can get to a wall
 const MOUSE_LOOK = 0.0022
 const TOUCH_LOOK = 0.005
 const MAX_PITCH = Math.PI / 2 - 0.05
@@ -60,10 +60,9 @@ export default function Player({ active, touch, onHover, onActivate }) {
   useEffect(() => {
     camera.rotation.order = 'YXZ'
     camera.position.set(...SPAWN)
-    if (savedPose) {
-      const lim = ROOM.HALF - RADIUS
-      camera.position.x = THREE.MathUtils.clamp(savedPose.x, -lim, lim)
-      camera.position.z = THREE.MathUtils.clamp(savedPose.z, -lim, lim)
+    if (savedPose && canStand(savedPose.x, savedPose.z)) {
+      camera.position.x = savedPose.x
+      camera.position.z = savedPose.z
       s.current.yaw = savedPose.yaw
       s.current.pitch = THREE.MathUtils.clamp(savedPose.pitch, -MAX_PITCH, MAX_PITCH)
     }
@@ -184,10 +183,13 @@ export default function Player({ active, touch, onHover, onActivate }) {
     target.copy(forward).multiplyScalar(f * speed).addScaledVector(right, r * speed)
     st.vel.lerp(target, 1 - Math.exp(-12 * dt))
 
-    const lim = ROOM.HALF - RADIUS
+    // If the step is blocked, try each axis alone so you slide along walls.
     const p = camera.position
-    p.x = THREE.MathUtils.clamp(p.x + st.vel.x * dt, -lim, lim)
-    p.z = THREE.MathUtils.clamp(p.z + st.vel.z * dt, -lim, lim)
+    const x = p.x + st.vel.x * dt
+    const z = p.z + st.vel.z * dt
+    if (canStand(x, z)) { p.x = x; p.z = z }
+    else if (canStand(x, p.z)) p.x = x
+    else if (canStand(p.x, z)) p.z = z
 
     const v = Math.hypot(st.vel.x, st.vel.z)
     st.bob = v > 0.1 ? st.bob + dt * v * 2.4 : st.bob

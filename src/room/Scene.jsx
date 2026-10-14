@@ -1,24 +1,22 @@
 // The room: four walls, a floor and ceiling, and the exhibits hung on them.
 // Spawn faces north (the resume). Projects are on the west wall to your left,
 // links on the east wall to your right. Behind you: GrocerEZ, the classic-site door,
-// and the badges.
+// and the badges. A doorway right of the cv leads to the gallery.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { EMAIL, RESUME_URL, ROOM, badges, grocerez, isExternal, links, projects } from './content'
+import { DOORWAY, EMAIL, RESUME_URL, ROOM, badges, grocerez, isExternal, links, projects } from './content'
 import {
-  badge, doorPanel, floorDecal, floorTexture, grocerezCard, header, linkCard, louvres,
+  badge, doorPanel, floorDecal, floorTexture, grocerezCard, linkCard, louvres,
   nameCard, noteCard, plaque, projectCard, resumePlaceholder,
 } from './textures'
 import { loadResumeTexture } from './resumeTexture'
+import { Exhibit, Header, WALL_COLOR, Wall, useTexture } from './parts'
+import Gallery from './Gallery'
 
 const H = ROOM.HALF
-const ACCENT = new THREE.Color('#6d5cff')
-const FRAME = new THREE.Color('#2b2e35')
-const WALL_COLOR = '#f1efea'
 
-// Each wall is a group whose local +z points into the room and whose local +x is
-// the viewer's right when facing it, so exhibits are laid out in wall coordinates.
+// [position, y rotation] of each wall; see Wall for its coordinates.
 const WALLS = {
   north: [[0, 0, -H], 0],
   west: [[-H, 0, 0], Math.PI / 2],
@@ -33,66 +31,6 @@ const spread = (n) => {
 }
 
 const linkAction = (href, newTab = isExternal(href)) => ({ type: 'link', href, newTab })
-
-// Textures are created once per component and freed when it unmounts.
-function useTexture(make, deps) {
-  const tex = useMemo(make, deps)
-  useEffect(() => () => tex.dispose(), [tex])
-  return tex
-}
-
-function Wall({ side, children }) {
-  const [position, ry] = WALLS[side]
-  return (
-    <group position={position} rotation={[0, ry, 0]}>
-      <mesh position={[0, ROOM.HEIGHT / 2, 0]}>
-        <planeGeometry args={[H * 2, ROOM.HEIGHT]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.95} />
-      </mesh>
-      <mesh position={[0, 0.07, 0.015]}>
-        <boxGeometry args={[H * 2, 0.14, 0.03]} />
-        <meshStandardMaterial color="#d8d4cc" roughness={0.9} />
-      </mesh>
-      {children}
-    </group>
-  )
-}
-
-// A framed picture. Passing `exhibit` makes it clickable and lets it light up on hover.
-function Exhibit({ texture, w, h, position, exhibit, hovered, frame = true }) {
-  const group = useRef()
-  const frameMat = useRef()
-  const on = !!exhibit && hovered === exhibit.id
-
-  useFrame((_, dt) => {
-    const k = 1 - Math.exp(-14 * dt)
-    group.current.position.z = THREE.MathUtils.lerp(group.current.position.z, on ? 0.06 : 0, k)
-    group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, on ? 1.04 : 1, k))
-    frameMat.current?.color.lerp(on ? ACCENT : FRAME, k)
-  })
-
-  return (
-    <group position={position}>
-      <group ref={group}>
-        {frame && (
-          <mesh position={[0, 0, 0.025]}>
-            <boxGeometry args={[w + 0.08, h + 0.08, 0.05]} />
-            <meshStandardMaterial ref={frameMat} color={FRAME} roughness={0.6} />
-          </mesh>
-        )}
-        <mesh position={[0, 0, 0.052]} userData={exhibit ? { exhibit } : undefined}>
-          <planeGeometry args={[w, h]} />
-          <meshBasicMaterial map={texture} transparent={!frame} />
-        </mesh>
-      </group>
-    </group>
-  )
-}
-
-function Header({ text, x = 0, y = 3.55 }) {
-  const tex = useTexture(() => header(text, 4, 0.5), [text])
-  return <Exhibit texture={tex} w={4} h={0.5} position={[x, y, 0]} frame={false} />
-}
 
 function ProjectExhibit({ p, i, x, hovered }) {
   const w = 2.2, hgt = 1.45
@@ -296,19 +234,19 @@ function Shell({ touch }) {
 export default function Scene({ hovered, touch }) {
   const resumeOpen = useMemo(() => linkAction(RESUME_URL, true), [])
   const name = useTexture(() => nameCard(EMAIL, 2.3, 1.5), [])
-  const cv = useTexture(() => noteCard('cv', 'coming soon!', 1.9, 1.15), [])
+  const cv = useTexture(() => noteCard('cv', 'coming soon!', 1.6, 1.0), [])
   const projectSpots = spread(projects.length)
   const linkSpots = spread(links.length)
 
   return (
     <>
-      <color attach="background" args={['#f1efea']} />
+      <color attach="background" args={[WALL_COLOR]} />
       <hemisphereLight args={['#ffffff', '#cfcac0', 1.6]} />
       <pointLight position={[0, ROOM.HEIGHT - 0.4, 0]} intensity={14} distance={0} decay={1.2} />
 
       <Shell touch={touch} />
 
-      <Wall side="north">
+      <Wall at={WALLS.north} opening={DOORWAY}>
         <Header text="resume" />
         <Exhibit texture={name} w={2.3} h={1.5} position={[-3.6, 1.85, 0]} />
         <Resume x={-0.6} hovered={hovered} />
@@ -320,28 +258,34 @@ export default function Scene({ hovered, touch }) {
           id="resume-tab" label="open resume in a new tab" text="↗ open in tab"
           action={resumeOpen} position={[1.0, 1.71, 0]} hovered={hovered}
         />
-        <Exhibit texture={cv} w={1.9} h={1.15} position={[3.6, 1.85, 0]} />
+        <Exhibit texture={cv} w={1.6} h={1.0} position={[2.6, 1.85, 0]} />
+        <Plaque
+          id="gallery-sign" label="the gallery: walk on through" text="gallery ↑"
+          action={null} position={[DOORWAY.x, DOORWAY.h + 0.38, 0]} w={1.3} h={0.32} hovered={hovered}
+        />
       </Wall>
 
-      <Wall side="west">
+      <Wall at={WALLS.west}>
         <Header text="projects" />
         {projects.map((p, i) => (
           <ProjectExhibit key={p.id} p={p} i={i} x={projectSpots[i]} hovered={hovered} />
         ))}
       </Wall>
 
-      <Wall side="east">
+      <Wall at={WALLS.east}>
         <Header text="links" />
         {links.map((l, i) => (
           <LinkExhibit key={l.id} l={l} x={linkSpots[i]} hovered={hovered} />
         ))}
       </Wall>
 
-      <Wall side="south">
+      <Wall at={WALLS.south}>
         <Grocerez hovered={hovered} />
         <Door hovered={hovered} />
         <Badges hovered={hovered} />
       </Wall>
+
+      <Gallery hovered={hovered} />
     </>
   )
 }

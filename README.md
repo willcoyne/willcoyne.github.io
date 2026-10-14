@@ -7,6 +7,9 @@ willcoyne.us
 - `/coyne-ai/` is Coyne AI (below).
 
 To add a project, badge, or link, edit `src/room/content.js`; the walls and the in-room menu both read from it.
+The gallery (through the doorway right of the cv) works the same way: put photos in `public/gallery/` and list
+them in `gallery` in `content.js`. They fill the frames in order, far wall first; the furniture and walkable floor
+are laid out in `src/room/floorplan.js`.
 The resume on the wall is rendered from `public/William-Coyne-Resume.pdf`, so replacing that file updates it.
 
 Coyne AI

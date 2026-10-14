@@ -7,6 +7,19 @@ export const EMAIL = 'coyne.w@wustl.edu'
 // Room interior: x and z run from -HALF to +HALF, floor at y = 0.
 export const ROOM = { HALF: 6, HEIGHT: 4.2, EYE: 1.65 }
 
+// The gallery is through a doorway in the resume wall, right of the cv. Its walls
+// are DOORWAY.depth thick; GALLERY_ROOM.x/z is the middle of its floor.
+export const DOORWAY = { x: 4.7, w: 1.8, h: 2.7, depth: 0.2 }
+const GALLERY_DEPTH = 8
+export const GALLERY_ROOM = {
+  x: DOORWAY.x, z: -ROOM.HALF - DOORWAY.depth - GALLERY_DEPTH / 2, W: 10, D: GALLERY_DEPTH, HEIGHT: 3.6,
+}
+
+// Photos for the gallery. Put the files in public/gallery/ and list them here; they
+// fill the frames in order, far wall first. Frames without a photo say "coming soon".
+// e.g. { id: 'lake', src: '/gallery/lake.jpg', title: 'lake michigan', caption: 'summer 2026' }
+export const gallery = []
+
 export const projects = [
   {
     id: 'job-saver',

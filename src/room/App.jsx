@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import Scene from './Scene'
 import Player, { SPAWN, savedPose } from './Player'
 import Joystick from './Joystick'
-import { EMAIL, RESUME_URL, badges, grocerez, isExternal, links, projects } from './content'
+import { EMAIL, RESUME_URL, badges, gallery, grocerez, isExternal, links, projects } from './content'
 
 // Phones and tablets get drag-to-look and a joystick instead of pointer lock.
 const TOUCH = window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches
@@ -16,6 +16,7 @@ function downloadResume() {
 }
 
 const ext = (href) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {})
+const photos = gallery.filter((g) => g.src)
 
 // The Esc menu doubles as a plain list of everything on the walls.
 function enterLabel(intro, entering) {
@@ -81,6 +82,12 @@ function Menu({ intro, entering, onEnter, onResume }) {
           ) : (
             <div key={b.id} className="row"><span className="v">{b.label}</span></div>
           ))}
+          {photos.length > 0 && <h2>gallery</h2>}
+          {photos.map((g) => (
+            <a key={g.id} className="row" href={g.src} target="_blank" rel="noopener">
+              <span className="k">{g.title ?? 'photo'}</span><span className="v">{g.caption}</span>
+            </a>
+          ))}
         </details>
 
         <a className="classic" href="/classic/">classic site →</a>
@@ -113,9 +120,30 @@ function ResumeViewer({ onClose }) {
   )
 }
 
+function PhotoViewer({ photo, onClose }) {
+  useEffect(() => {
+    const key = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [onClose])
+
+  return (
+    <div className="overlay" onClick={onClose}>
+      <figure className="photo" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={photo.title ?? 'photo'}>
+        <img src={photo.src} alt={photo.title ?? ''} />
+        <figcaption>
+          <span><b>{photo.title}</b> {photo.caption && <span className="dim">{photo.caption}</span>}</span>
+          <button type="button" className="btn" onClick={onClose} autoFocus>close</button>
+        </figcaption>
+      </figure>
+    </div>
+  )
+}
+
 export default function App() {
-  // intro -> playing <-> paused; resume is the PDF viewer on top of the room.
+  // intro -> playing <-> paused; resume and photo are viewers on top of the room.
   const [mode, setMode] = useState('intro')
+  const [photo, setPhoto] = useState(null)
   const [hovered, setHovered] = useState(null)
   const [entering, setEntering] = useState(false)
   const [toast, setToast] = useState(null)
@@ -167,6 +195,10 @@ export default function App() {
     } else if (a.type === 'resume') {
       setMode('resume')
       release()
+    } else if (a.type === 'photo') {
+      setPhoto(a.item)
+      setMode('photo')
+      release()
     } else if (a.type === 'download') {
       downloadResume()
     } else if (a.type === 'link') {
@@ -180,7 +212,7 @@ export default function App() {
     }
   }, [release, flash])
 
-  const closeResume = useCallback(() => setMode('paused'), [])
+  const closeViewer = useCallback(() => setMode('paused'), [])
   const playing = mode === 'playing'
 
   return (
@@ -216,7 +248,8 @@ export default function App() {
       {(mode === 'intro' || mode === 'paused') && (
         <Menu intro={mode === 'intro'} entering={entering} onEnter={enter} onResume={() => setMode('resume')} />
       )}
-      {mode === 'resume' && <ResumeViewer onClose={closeResume} />}
+      {mode === 'resume' && <ResumeViewer onClose={closeViewer} />}
+      {mode === 'photo' && <PhotoViewer photo={photo} onClose={closeViewer} />}
     </div>
   )
 }
