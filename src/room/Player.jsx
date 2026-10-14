@@ -20,12 +20,26 @@ const KEYS = {
 }
 export const SPAWN = [0, ROOM.EYE, 1.5]
 
+// Where you were standing, so leaving for a project page and coming back drops
+// you in the same spot instead of at the spawn point.
+const POSE_KEY = 'room-pose'
+function readPose() {
+  try {
+    const p = JSON.parse(sessionStorage.getItem(POSE_KEY))
+    return p && [p.x, p.z, p.yaw, p.pitch].every(Number.isFinite) ? p : null
+  } catch {
+    return null
+  }
+}
+export const savedPose = readPose()
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-// The exhibit record lives on the clickable mesh's userData.
+// The exhibit record lives on the userData of the clickable mesh or one of its parents.
 function exhibitAt(raycaster, scene) {
-  const hit = raycaster.intersectObjects(scene.children, true)[0]
-  return hit?.object.userData.exhibit ?? null
+  let o = raycaster.intersectObjects(scene.children, true)[0]?.object
+  while (o && !o.userData.exhibit) o = o.parent
+  return o?.userData.exhibit ?? null
 }
 
 export default function Player({ active, touch, onHover, onActivate }) {
@@ -46,6 +60,21 @@ export default function Player({ active, touch, onHover, onActivate }) {
   useEffect(() => {
     camera.rotation.order = 'YXZ'
     camera.position.set(...SPAWN)
+    if (savedPose) {
+      const lim = ROOM.HALF - RADIUS
+      camera.position.x = THREE.MathUtils.clamp(savedPose.x, -lim, lim)
+      camera.position.z = THREE.MathUtils.clamp(savedPose.z, -lim, lim)
+      s.current.yaw = savedPose.yaw
+      s.current.pitch = THREE.MathUtils.clamp(savedPose.pitch, -MAX_PITCH, MAX_PITCH)
+    }
+    const save = () => {
+      const { x, z } = camera.position
+      try {
+        sessionStorage.setItem(POSE_KEY, JSON.stringify({ x, z, yaw: s.current.yaw, pitch: s.current.pitch }))
+      } catch { /* private mode: just respawn next time */ }
+    }
+    window.addEventListener('pagehide', save)
+    return () => window.removeEventListener('pagehide', save)
   }, [camera])
 
   // Portrait phones get a wider lens so the walls aren't seen through a slot.

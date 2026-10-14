@@ -104,6 +104,8 @@ export default function App(){
   }
 
   return (
+    <>
+    <a className="back-link" href="/">← back to the room</a>
     <div className="wrap">
       <header className="hero">
         <div>
@@ -179,5 +181,6 @@ export default function App(){
         Coyne AI is your gateway to living advice — questions are collected and William answers personally. This interface is built for a sleek, futuristic experience.
       </footer>
     </div>
+    </>
   )
 }

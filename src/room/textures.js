@@ -93,6 +93,116 @@ export function projectCard(p, index, w, h) {
   })
 }
 
+export function grocerezCard(g, w, h) {
+  return paint(w, h, (ctx, W, H) => {
+    const pad = W * 0.07
+    ctx.fillStyle = '#2f7d4f'
+    ctx.fillRect(0, 0, W, H * 0.02)
+    ctx.fillStyle = GOLD
+    ctx.font = font(H * 0.045, 600)
+    ctx.fillText(`★ ${g.kicker}`, pad, pad + H * 0.03)
+
+    ctx.fillStyle = INK
+    ctx.font = font(H * 0.13, 700)
+    ctx.fillText(g.title, pad, H * 0.26)
+    ctx.fillStyle = MUTED
+    ctx.font = font(H * 0.048)
+    ctx.fillText(g.tagline, pad, H * 0.34)
+
+    ctx.font = font(H * 0.042)
+    let y = H * 0.46
+    for (const pt of g.points) {
+      ctx.fillStyle = '#2f7d4f'
+      ctx.fillText('▸', pad, y)
+      ctx.fillStyle = INK
+      y = wrap(ctx, pt, pad + H * 0.05, y, W - pad * 2 - H * 0.05, H * 0.055, 2) + H * 0.02
+    }
+
+    ctx.fillStyle = MUTED
+    fit(ctx, g.status, H * 0.04, W - pad * 2)
+    ctx.fillText(g.status, pad, H - pad - H * 0.075)
+    ctx.fillStyle = INK
+    fit(ctx, `↗ ${g.host}`, H * 0.045, W - pad * 2, 600)
+    ctx.fillText(`↗ ${g.host}`, pad, H - pad)
+  })
+}
+
+function badgePath(ctx, shape, cx, cy, r) {
+  ctx.beginPath()
+  if (shape === 'hex') {
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI / 6 + (i * Math.PI) / 3
+      ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
+    }
+    ctx.closePath()
+  } else if (shape === 'shield') {
+    ctx.moveTo(cx - r * 0.85, cy - r * 0.9)
+    ctx.lineTo(cx + r * 0.85, cy - r * 0.9)
+    ctx.lineTo(cx + r * 0.85, cy + r * 0.05)
+    ctx.quadraticCurveTo(cx + r * 0.8, cy + r * 0.75, cx, cy + r)
+    ctx.quadraticCurveTo(cx - r * 0.8, cy + r * 0.75, cx - r * 0.85, cy + r * 0.05)
+    ctx.closePath()
+  } else {
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  }
+}
+
+// A medal-style badge with a caption underneath, on a transparent background.
+export function badge(b, w, h) {
+  return paint(w, h, (ctx, W, H) => {
+    const cx = W / 2, cy = W / 2, r = W * 0.43
+    ctx.save()
+    ctx.shadowColor = 'rgba(0,0,0,0.28)'
+    ctx.shadowBlur = W * 0.04
+    ctx.shadowOffsetY = W * 0.015
+    badgePath(ctx, b.shape, cx, cy, r)
+    ctx.fillStyle = b.color
+    ctx.fill()
+    ctx.restore()
+
+    // light sheen + inner rim
+    const g = ctx.createLinearGradient(0, cy - r, 0, cy + r)
+    g.addColorStop(0, 'rgba(255,255,255,0.22)')
+    g.addColorStop(0.55, 'rgba(255,255,255,0)')
+    badgePath(ctx, b.shape, cx, cy, r)
+    ctx.fillStyle = g
+    ctx.fill()
+    badgePath(ctx, b.shape, cx, cy, r * 0.86)
+    ctx.strokeStyle = 'rgba(255,255,255,0.75)'
+    ctx.lineWidth = W * 0.012
+    ctx.stroke()
+
+    ctx.fillStyle = '#fff'
+    ctx.textAlign = 'center'
+    fit(ctx, b.top.toUpperCase(), W * 0.075, r * 1.3, 600)
+    ctx.fillText(b.top.toUpperCase(), cx, cy - r * 0.32)
+    fit(ctx, b.big, W * 0.2, r * 1.5, 700)
+    ctx.fillText(b.big, cx, cy + r * 0.14)
+    fit(ctx, b.bottom.toUpperCase(), W * 0.07, r * 1.2, 500)
+    ctx.fillText(b.bottom.toUpperCase(), cx, cy + r * 0.48)
+
+    ctx.fillStyle = INK
+    fit(ctx, b.caption, W * 0.075, W * 0.98, 500)
+    ctx.fillText(b.caption, cx, H - H * 0.04)
+  }, { transparent: true })
+}
+
+// Louvred door slats for the GrocerEZ pantry cabinet.
+export function louvres() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = '#b98352'
+  ctx.fillRect(0, 0, 128, 256)
+  ctx.fillStyle = 'rgba(70,40,15,0.35)'
+  for (let y = 26; y < 232; y += 12) ctx.fillRect(16, y, 96, 5)
+  ctx.strokeStyle = 'rgba(70,40,15,0.45)'
+  ctx.lineWidth = 6
+  ctx.strokeRect(10, 10, 108, 236)
+  return toTexture(canvas)
+}
+
 export function linkCard(l, w, h) {
   return paint(w, h, (ctx, W, H) => {
     const pad = H * 0.14
@@ -127,7 +237,7 @@ export function nameCard(email, w, h) {
 
     ctx.fillStyle = INK
     ctx.font = font(H * 0.062)
-    const rows = ['← projects', '→ links', '↻ behind you: classic site']
+    const rows = ['← projects', '→ links', '↻ behind you: GrocerEZ + badges']
     rows.forEach((r, i) => ctx.fillText(r, pad, H * 0.66 + i * H * 0.085))
   })
 }

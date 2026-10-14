@@ -46,5 +46,55 @@ export const links = [
   { id: 'email', title: 'email', handle: EMAIL, mark: '@', color: '#3a7d5c', href: `mailto:${EMAIL}` },
 ]
 
+// The back wall, left of the door.
+export const grocerez = {
+  id: 'grocerez',
+  title: 'GrocerEZ',
+  kicker: 'HACKMIDWEST 2026 → REAL PRODUCT',
+  tagline: 'a shared grocery app for households',
+  points: [
+    'the shopping list writes itself: wants − pantry',
+    'an AI agent plans meals around allergies + diets',
+    'a 3D pantry you can walk up to',
+    'grocery price estimates by ZIP code',
+  ],
+  status: 'built at HackMidwest 2026, now becoming a real product',
+  href: 'https://github.com/willcoyne/grocerez',
+  host: 'github.com/willcoyne/grocerez',
+}
+
+// The back wall, right of the door. `href` is optional; without one a badge
+// just shows its label when you look at it.
+export const badges = [
+  {
+    id: 'security-plus', shape: 'hex', color: '#c8102e',
+    top: 'CompTIA', big: 'Security+', bottom: 'SY0-701', caption: 'certified · nov 2024',
+    label: 'CompTIA Security+ certified (SY0-701), Nov 2024',
+    href: 'https://www.linkedin.com/in/will-coyne',
+  },
+  {
+    id: 'hackmidwest', shape: 'circle', color: '#f26b21',
+    top: 'HackMidwest', big: '2026', bottom: 'hacker', caption: 'built GrocerEZ',
+    label: 'HackMidwest 2026: built GrocerEZ',
+    href: grocerez.href,
+  },
+  {
+    id: 'deans-list', shape: 'circle', color: '#a51417',
+    top: "Dean's List", big: 'WashU', bottom: 'fall 2025', caption: "dean's list",
+    label: "Dean's List, WashU, Fall 2025",
+  },
+  {
+    id: 'track', shape: 'shield', color: '#007360',
+    top: 'WashU', big: 'T&F', bottom: 'athlete', caption: 'track & field',
+    label: 'Collegiate student-athlete, WashU Track & Field',
+  },
+  {
+    id: 'ignatian', shape: 'circle', color: '#4b2e83',
+    top: 'Ignatian', big: 'Honors', bottom: 'capstone', caption: 'honors program 2025',
+    label: 'Ignatian Honors Program capstone, 2025',
+    href: 'https://github.com/willcoyne/Capstone-2025',
+  },
+]
+
 // Same-origin pages open in this tab; everything else gets a new tab.
 export const isExternal = (href) => /^https?:\/\//.test(href)

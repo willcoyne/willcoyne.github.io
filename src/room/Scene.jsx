@@ -1,13 +1,14 @@
 // The room: four walls, a floor and ceiling, and the exhibits hung on them.
 // Spawn faces north (the resume). Projects are on the west wall to your left,
-// links on the east wall to your right, and the classic-site door is behind you.
+// links on the east wall to your right. Behind you: GrocerEZ, the classic-site door,
+// and the badges.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { EMAIL, RESUME_URL, ROOM, isExternal, links, projects } from './content'
+import { EMAIL, RESUME_URL, ROOM, badges, grocerez, isExternal, links, projects } from './content'
 import {
-  doorPanel, floorDecal, floorTexture, header, linkCard, nameCard,
-  noteCard, plaque, projectCard, resumePlaceholder,
+  badge, doorPanel, floorDecal, floorTexture, grocerezCard, header, linkCard, louvres,
+  nameCard, noteCard, plaque, projectCard, resumePlaceholder,
 } from './textures'
 import { loadResumeTexture } from './resumeTexture'
 
@@ -66,6 +67,7 @@ function Exhibit({ texture, w, h, position, exhibit, hovered, frame = true }) {
   useFrame((_, dt) => {
     const k = 1 - Math.exp(-14 * dt)
     group.current.position.z = THREE.MathUtils.lerp(group.current.position.z, on ? 0.06 : 0, k)
+    group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, on ? 1.04 : 1, k))
     frameMat.current?.color.lerp(on ? ACCENT : FRAME, k)
   })
 
@@ -87,9 +89,9 @@ function Exhibit({ texture, w, h, position, exhibit, hovered, frame = true }) {
   )
 }
 
-function Header({ text, y = 3.55 }) {
+function Header({ text, x = 0, y = 3.55 }) {
   const tex = useTexture(() => header(text, 4, 0.5), [text])
-  return <Exhibit texture={tex} w={4} h={0.5} position={[0, y, 0]} frame={false} />
+  return <Exhibit texture={tex} w={4} h={0.5} position={[x, y, 0]} frame={false} />
 }
 
 function ProjectExhibit({ p, i, x, hovered }) {
@@ -152,6 +154,107 @@ function Door({ hovered }) {
       <Exhibit texture={tex} w={1.1} h={2.2} position={[0, 1.1, 0.02]} exhibit={exhibit} hovered={hovered} frame={false} />
       <Plaque id="classic-sign" label="go to the classic site" text="classic site →" action={exhibit.action} position={[0, 2.68, 0]} w={1.5} h={0.34} hovered={hovered} />
     </group>
+  )
+}
+
+function GrocerezPanel({ x, exhibit, hovered }) {
+  const w = 2.7, h = 1.9
+  const tex = useTexture(() => grocerezCard(grocerez, w, h), [])
+  return <Exhibit texture={tex} w={w} h={h} position={[x, 1.9, 0]} exhibit={exhibit} hovered={hovered} />
+}
+
+// A little wall-mounted pantry, after GrocerEZ's own 3D pantry home screen.
+// The louvred doors swing wider when you look at it.
+const CAN_COLORS = ['#e4572e', '#f3a712', '#29335c', '#669bbc', '#a8c686', '#db5461', '#ffd166', '#5c946e']
+function PantryCabinet({ x, exhibit, hovered }) {
+  const W = 1.0, Hc = 1.4, D = 0.32, T = 0.04
+  const louvre = useTexture(louvres, [])
+  const left = useRef()
+  const right = useRef()
+  const on = hovered === exhibit.id
+  const items = useMemo(() => {
+    const out = []
+    let n = 0
+    for (const y of [0.08, 0.5, 0.92]) {
+      for (let xi = -0.36; xi < 0.36; ) {
+        const iw = 0.1 + ((n * 37) % 7) / 70
+        const ih = 0.16 + ((n * 53) % 9) / 60
+        out.push({ x: xi + iw / 2, y: y + ih / 2, w: iw, h: ih, c: CAN_COLORS[n % CAN_COLORS.length] })
+        xi += iw + 0.03
+        n++
+      }
+    }
+    return out
+  }, [])
+
+  useFrame((_, dt) => {
+    const k = 1 - Math.exp(-8 * dt)
+    const a = on ? 2.0 : 1.2
+    left.current.rotation.y = THREE.MathUtils.lerp(left.current.rotation.y, -a, k)
+    right.current.rotation.y = THREE.MathUtils.lerp(right.current.rotation.y, a, k)
+  })
+
+  const wood = <meshStandardMaterial color="#b07a45" roughness={0.8} />
+  return (
+    <group position={[x, 1.05, 0]} userData={{ exhibit }}>
+      {/* back, sides, top, bottom */}
+      <mesh position={[0, Hc / 2, T / 2]}><boxGeometry args={[W, Hc, T]} /><meshStandardMaterial color="#8a5a30" roughness={0.9} /></mesh>
+      <mesh position={[-W / 2 + T / 2, Hc / 2, D / 2]}><boxGeometry args={[T, Hc, D]} />{wood}</mesh>
+      <mesh position={[W / 2 - T / 2, Hc / 2, D / 2]}><boxGeometry args={[T, Hc, D]} />{wood}</mesh>
+      <mesh position={[0, Hc - T / 2, D / 2]}><boxGeometry args={[W, T, D]} />{wood}</mesh>
+      {[0, 0.46, 0.88].map((y) => (
+        <mesh key={y} position={[0, y + T / 2, D / 2]}><boxGeometry args={[W - T * 2, T, D]} />{wood}</mesh>
+      ))}
+      {items.map((it, i) => (
+        <mesh key={i} position={[it.x, it.y, D * 0.45]}>
+          <boxGeometry args={[it.w, it.h, 0.12]} />
+          <meshStandardMaterial color={it.c} roughness={0.6} />
+        </mesh>
+      ))}
+      {/* doors hinge on the outer edges */}
+      <group ref={left} position={[-W / 2, Hc / 2, D]} rotation={[0, -1.2, 0]}>
+        <mesh position={[W / 4, 0, 0]}><boxGeometry args={[W / 2, Hc, 0.03]} /><meshStandardMaterial map={louvre} roughness={0.8} /></mesh>
+      </group>
+      <group ref={right} position={[W / 2, Hc / 2, D]} rotation={[0, 1.2, 0]}>
+        <mesh position={[-W / 4, 0, 0]}><boxGeometry args={[W / 2, Hc, 0.03]} /><meshStandardMaterial map={louvre} roughness={0.8} /></mesh>
+      </group>
+    </group>
+  )
+}
+
+function Grocerez({ hovered }) {
+  const exhibit = useMemo(() => ({ id: 'grocerez', label: 'open GrocerEZ', action: linkAction(grocerez.href) }), [])
+  return (
+    <>
+      <Header text="grocerez" x={-3.4} />
+      <PantryCabinet x={-4.95} exhibit={exhibit} hovered={hovered} />
+      <GrocerezPanel x={-2.7} exhibit={exhibit} hovered={hovered} />
+    </>
+  )
+}
+
+function Badge({ b, position, hovered }) {
+  const w = 0.95, h = 1.15
+  const tex = useTexture(() => badge(b, w, h), [b])
+  const exhibit = useMemo(() => ({ id: b.id, label: b.label, action: b.href ? linkAction(b.href) : null }), [b])
+  return <Exhibit texture={tex} w={w} h={h} position={position} exhibit={exhibit} hovered={hovered} frame={false} />
+}
+
+// Two rows of badges between the door and the corner.
+function Badges({ hovered }) {
+  const cols = Math.max(1, Math.ceil(badges.length / 2))
+  const gap = Math.min(1.4, 4.2 / cols)
+  const x0 = 3.45 - ((cols - 1) * gap) / 2
+  return (
+    <>
+      <Header text="badges" x={3.45} />
+      {badges.map((b, i) => (
+        <Badge
+          key={b.id} b={b} hovered={hovered}
+          position={[x0 + (i % cols) * gap + (i >= cols && badges.length % 2 ? gap / 2 : 0), i < cols ? 2.55 : 1.3, 0]}
+        />
+      ))}
+    </>
   )
 }
 
@@ -233,7 +336,9 @@ export default function Scene({ hovered, touch }) {
       </Wall>
 
       <Wall side="south">
+        <Grocerez hovered={hovered} />
         <Door hovered={hovered} />
+        <Badges hovered={hovered} />
       </Wall>
     </>
   )

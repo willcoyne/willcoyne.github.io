@@ -6,7 +6,7 @@ willcoyne.us
 - `/classic/` is the previous terminal-style page, kept as a backup. Browsers without WebGL are sent there.
 - `/coyne-ai/` is Coyne AI (below).
 
-To add a project or change a link, edit `src/room/content.js`; the walls and the in-room menu both read from it.
+To add a project, badge, or link, edit `src/room/content.js`; the walls and the in-room menu both read from it.
 The resume on the wall is rendered from `public/William-Coyne-Resume.pdf`, so replacing that file updates it.
 
 Coyne AI

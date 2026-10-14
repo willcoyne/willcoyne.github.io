@@ -47,8 +47,9 @@
       iframe{width:100%;height:min(78vh,980px);margin-top:14px;border:1px solid var(--line);border-radius:2px;background:#fff}
 
       .theme-btn{position:fixed;right:20px;bottom:20px;z-index:3;background:rgba(2,5,14,0.9)}
+      .room-btn{position:fixed;left:20px;bottom:20px;z-index:3;background:rgba(2,5,14,0.9)}
       a:focus-visible,button:focus-visible{outline:2px solid var(--art);outline-offset:3px}
-      @media(max-width:700px){body{padding:18px 14px 84px}.wrap{padding:26px 20px 30px}h1{font-size:1.3rem;letter-spacing:0.16em}.k{flex:0 0 9ch}.row{gap:12px}iframe{height:70vh}.theme-btn{right:14px;bottom:14px}}
+      @media(max-width:700px){body{padding:18px 14px 84px}.wrap{padding:26px 20px 30px}h1{font-size:1.3rem;letter-spacing:0.16em}.k{flex:0 0 9ch}.row{gap:12px}iframe{height:70vh}.theme-btn{right:14px;bottom:14px}.room-btn{left:14px;bottom:14px}}
       @media(prefers-reduced-motion:reduce){h1::after{animation:none}}
     </style>
   </head>
@@ -85,6 +86,7 @@
       <a class="row" href="mailto:coyne.w@wustl.edu"><span class="k">email</span><span class="v">coyne.w@wustl.edu</span></a>
     </div>
 
+    <a class="btn room-btn" href="/">&larr; back to the room</a>
     <button class="btn theme-btn" id="theme-btn" type="button" aria-label="rotate background theme" hidden>theme</button>
     <script type="module" src="/src/ascii-bg.js"></script>
   </body>

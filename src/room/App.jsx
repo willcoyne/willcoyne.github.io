@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Scene from './Scene'
-import Player, { SPAWN } from './Player'
+import Player, { SPAWN, savedPose } from './Player'
 import Joystick from './Joystick'
-import { EMAIL, RESUME_URL, isExternal, links, projects } from './content'
+import { EMAIL, RESUME_URL, badges, grocerez, isExternal, links, projects } from './content'
 
 // Phones and tablets get drag-to-look and a joystick instead of pointer lock.
 const TOUCH = window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches
@@ -18,7 +18,14 @@ function downloadResume() {
 const ext = (href) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {})
 
 // The Esc menu doubles as a plain list of everything on the walls.
-function Menu({ intro, onEnter, onResume }) {
+function enterLabel(intro, entering) {
+  if (entering) return 'one sec…'
+  if (!intro) return 'back to the room'
+  const verb = TOUCH ? 'tap' : 'click'
+  return savedPose ? `${verb} to go back into the room` : `${verb} to enter the room`
+}
+
+function Menu({ intro, entering, onEnter, onResume }) {
   return (
     <div className="overlay">
       <div className="card">
@@ -26,7 +33,7 @@ function Menu({ intro, onEnter, onResume }) {
         <p className="sub">{EMAIL}</p>
 
         <button className="enter" type="button" onClick={onEnter} autoFocus>
-          {intro ? (TOUCH ? 'tap to enter the room' : 'click to enter the room') : 'back to the room'}
+          {enterLabel(intro, entering)}
         </button>
 
         <ul className="controls">
@@ -54,6 +61,9 @@ function Menu({ intro, onEnter, onResume }) {
             <button type="button" className="btn" onClick={downloadResume}>download pdf</button>
           </div>
           <h2>projects</h2>
+          <a className="row" href={grocerez.href} {...ext(grocerez.href)}>
+            <span className="k">{grocerez.title}</span><span className="v">{grocerez.tagline}, HackMidwest 2026</span>
+          </a>
           {projects.map((p) => (
             <a key={p.id} className="row" href={p.href} {...ext(p.href)}>
               <span className="k">{p.title}</span><span className="v">{p.blurb}</span>
@@ -64,6 +74,12 @@ function Menu({ intro, onEnter, onResume }) {
             <a key={l.id} className="row" href={l.href} {...ext(l.href)}>
               <span className="k">{l.title}</span><span className="v">{l.handle}</span>
             </a>
+          ))}
+          <h2>badges</h2>
+          {badges.map((b) => b.href ? (
+            <a key={b.id} className="row" href={b.href} {...ext(b.href)}><span className="v">{b.label}</span></a>
+          ) : (
+            <div key={b.id} className="row"><span className="v">{b.label}</span></div>
           ))}
         </details>
 
@@ -101,14 +117,33 @@ export default function App() {
   // intro -> playing <-> paused; resume is the PDF viewer on top of the room.
   const [mode, setMode] = useState('intro')
   const [hovered, setHovered] = useState(null)
+  const [entering, setEntering] = useState(false)
+  const [toast, setToast] = useState(null)
   const canvasRef = useRef(null)
+  const toastTimer = useRef(0)
 
   const enter = useCallback(() => {
     if (TOUCH) { setMode('playing'); return }
-    try {
-      // Browsers refuse a re-lock for ~1s after Esc; the menu just stays up until the next click.
-      canvasRef.current?.requestPointerLock()?.catch?.(() => {})
-    } catch { /* same as above */ }
+    setEntering(true)
+    setTimeout(() => setEntering(false), 3000) // browsers that never report a failure
+    // Chrome refuses to re-lock for about a second after Esc. The click still
+    // counts as a user gesture a moment later, so retry once before giving up.
+    const tryLock = (retry) => {
+      const fail = () => (retry ? setTimeout(() => tryLock(false), 1100) : setEntering(false))
+      try {
+        canvasRef.current?.requestPointerLock()?.catch?.(fail)
+      } catch {
+        fail()
+      }
+    }
+    tryLock(true)
+  }, [])
+
+  // Tapping a badge with no link just shows its label for a moment.
+  const flash = useCallback((text) => {
+    setToast(text)
+    clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2500)
   }, [])
 
   const release = useCallback(() => {
@@ -118,6 +153,7 @@ export default function App() {
   useEffect(() => {
     const change = () => {
       const locked = document.pointerLockElement === canvasRef.current
+      if (locked) setEntering(false)
       setMode((m) => (locked ? 'playing' : m === 'playing' ? 'paused' : m))
     }
     document.addEventListener('pointerlockchange', change)
@@ -126,7 +162,9 @@ export default function App() {
 
   const activate = useCallback((ex) => {
     const a = ex.action
-    if (a.type === 'resume') {
+    if (!a) {
+      flash(ex.label)
+    } else if (a.type === 'resume') {
       setMode('resume')
       release()
     } else if (a.type === 'download') {
@@ -140,7 +178,7 @@ export default function App() {
         window.location.href = a.href
       }
     }
-  }, [release])
+  }, [release, flash])
 
   const closeResume = useCallback(() => setMode('paused'), [])
   const playing = mode === 'playing'
@@ -162,9 +200,10 @@ export default function App() {
           {!TOUCH && <div className={`crosshair ${hovered ? 'on' : ''}`} />}
           {!TOUCH && hovered && (
             <div className="hint">
-              <kbd>click</kbd> {hovered.label}{hovered.action.newTab ? ' ↗' : ''}
+              {hovered.action && <><kbd>click</kbd>{' '}</>}{hovered.label}{hovered.action?.newTab ? ' ↗' : ''}
             </div>
           )}
+          {TOUCH && toast && <div className="hint">{toast}</div>}
           <div className="corner">
             {TOUCH
               ? <button type="button" className="btn" onClick={() => setMode('paused')}>menu</button>
@@ -175,7 +214,7 @@ export default function App() {
       )}
 
       {(mode === 'intro' || mode === 'paused') && (
-        <Menu intro={mode === 'intro'} onEnter={enter} onResume={() => setMode('resume')} />
+        <Menu intro={mode === 'intro'} entering={entering} onEnter={enter} onResume={() => setMode('resume')} />
       )}
       {mode === 'resume' && <ResumeViewer onClose={closeResume} />}
     </div>
