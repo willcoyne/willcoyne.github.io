@@ -16,7 +16,7 @@ function downloadResume() {
 }
 
 const ext = (href) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {})
-const photos = gallery.filter((g) => g.src)
+const pieces = gallery.filter((g) => g.src)
 
 // The Esc menu doubles as a plain list of everything on the walls.
 function enterLabel(intro, entering) {
@@ -82,10 +82,10 @@ function Menu({ intro, entering, onEnter, onResume }) {
           ) : (
             <div key={b.id} className="row"><span className="v">{b.label}</span></div>
           ))}
-          {photos.length > 0 && <h2>gallery</h2>}
-          {photos.map((g) => (
+          {pieces.length > 0 && <h2>gallery</h2>}
+          {pieces.map((g) => (
             <a key={g.id} className="row" href={g.src} target="_blank" rel="noopener">
-              <span className="k">{g.title ?? 'photo'}</span><span className="v">{g.caption}</span>
+              <span className="k">{g.video ? '▶ ' : ''}{g.title ?? 'photo'}</span><span className="v">{g.caption}</span>
             </a>
           ))}
         </details>
@@ -96,7 +96,11 @@ function Menu({ intro, entering, onEnter, onResume }) {
   )
 }
 
-function ResumeViewer({ onClose }) {
+// The dimmed layer under a viewer. Esc closes it, and so does a click that starts
+// and ends on the backdrop itself; the tap that opened the viewer doesn't count,
+// even if the viewer appears under the finger before that tap's click lands.
+function Backdrop({ onClose, children }) {
+  const down = useRef(false)
   useEffect(() => {
     const key = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', key)
@@ -104,8 +108,20 @@ function ResumeViewer({ onClose }) {
   }, [onClose])
 
   return (
-    <div className="overlay" onClick={onClose}>
-      <div className="viewer" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="resume">
+    <div
+      className="overlay"
+      onPointerDown={(e) => { down.current = e.target === e.currentTarget }}
+      onClick={(e) => { if (down.current && e.target === e.currentTarget) onClose() }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function ResumeViewer({ onClose }) {
+  return (
+    <Backdrop onClose={onClose}>
+      <div className="viewer" role="dialog" aria-label="resume">
         <div className="viewer-bar">
           <span>resume</span>
           <div className="btns">
@@ -116,34 +132,31 @@ function ResumeViewer({ onClose }) {
         </div>
         <iframe src={RESUME_URL} title="resume" />
       </div>
-    </div>
+    </Backdrop>
   )
 }
 
-function PhotoViewer({ photo, onClose }) {
-  useEffect(() => {
-    const key = (e) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
-  }, [onClose])
-
+// A gallery photo full size, or its video playing.
+function MediaViewer({ item, onClose }) {
   return (
-    <div className="overlay" onClick={onClose}>
-      <figure className="photo" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={photo.title ?? 'photo'}>
-        <img src={photo.src} alt={photo.title ?? ''} />
+    <Backdrop onClose={onClose}>
+      <figure className="photo" role="dialog" aria-label={item.title ?? 'photo'}>
+        {item.video
+          ? <video src={item.src} poster={item.thumb} controls autoPlay playsInline />
+          : <img src={item.src} alt={item.title ?? ''} />}
         <figcaption>
-          <span><b>{photo.title}</b> {photo.caption && <span className="dim">{photo.caption}</span>}</span>
+          <span><b>{item.title}</b> {item.caption && <span className="dim">{item.caption}</span>}</span>
           <button type="button" className="btn" onClick={onClose} autoFocus>close</button>
         </figcaption>
       </figure>
-    </div>
+    </Backdrop>
   )
 }
 
 export default function App() {
-  // intro -> playing <-> paused; resume and photo are viewers on top of the room.
+  // intro -> playing <-> paused; resume and media are viewers on top of the room.
   const [mode, setMode] = useState('intro')
-  const [photo, setPhoto] = useState(null)
+  const [media, setMedia] = useState(null)
   const [hovered, setHovered] = useState(null)
   const [entering, setEntering] = useState(false)
   const [toast, setToast] = useState(null)
@@ -195,9 +208,9 @@ export default function App() {
     } else if (a.type === 'resume') {
       setMode('resume')
       release()
-    } else if (a.type === 'photo') {
-      setPhoto(a.item)
-      setMode('photo')
+    } else if (a.type === 'media') {
+      setMedia(a.item)
+      setMode('media')
       release()
     } else if (a.type === 'download') {
       downloadResume()
@@ -249,7 +262,7 @@ export default function App() {
         <Menu intro={mode === 'intro'} entering={entering} onEnter={enter} onResume={() => setMode('resume')} />
       )}
       {mode === 'resume' && <ResumeViewer onClose={closeViewer} />}
-      {mode === 'photo' && <PhotoViewer photo={photo} onClose={closeViewer} />}
+      {mode === 'media' && <MediaViewer item={media} onClose={closeViewer} />}
     </div>
   )
 }

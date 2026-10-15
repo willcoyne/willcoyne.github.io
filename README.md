@@ -8,8 +8,10 @@ willcoyne.us
 
 To add a project, badge, or link, edit `src/room/content.js`; the walls and the in-room menu both read from it.
 The gallery (through the doorway right of the cv) works the same way: put photos in `public/gallery/` and list
-them in `gallery` in `content.js`. They fill the frames in order, far wall first; the furniture and walkable floor
-are laid out in `src/room/floorplan.js`.
+them in `gallery` in `content.js`. They fill the frames in order, starting with the big one in the middle of the
+far wall (the pole vault video). Each photo has a full-size copy (`name.jpg`, opens on click) and a smaller one for
+the wall (`name-wall.jpg`); a video is an H.264 `.mp4` with a poster frame. The full-resolution originals live in
+`gallery-originals/`, which is gitignored. The furniture and walkable floor are laid out in `src/room/floorplan.js`.
 The resume on the wall is rendered from `public/William-Coyne-Resume.pdf`, so replacing that file updates it.
 
 Coyne AI

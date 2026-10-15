@@ -50,7 +50,7 @@ kbd{display:inline-block;min-width:1.9em;margin-right:4px;padding:0 6px;border:1
 .viewer-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .viewer iframe{flex:1;width:100%;border:0;background:#fff}
 .photo{display:flex;flex-direction:column;max-width:100%;max-height:100%;margin:0;background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:0 20px 60px rgba(29,31,36,0.18);overflow:hidden}
-.photo img{display:block;min-height:0;max-width:100%;max-height:calc(100vh - 110px);object-fit:contain;background:#111}
+.photo img,.photo video{display:block;min-height:0;max-width:100%;max-height:calc(100vh - 110px);object-fit:contain;background:#111}
 .photo figcaption{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 14px;font-size:0.86rem}
 
 /* Touch joystick */

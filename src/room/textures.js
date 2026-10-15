@@ -449,8 +449,9 @@ export function rug(w, h) {
 
 const MAT = '#f6f3ec'
 
-// A photo in a mat, w x h overall; `mat` is the border width in world units.
-export function artwork(img, w, h, mat) {
+// A photo in a mat, w x h overall; `mat` is the border width in world units. A
+// video's poster gets a play button.
+export function artwork(img, w, h, mat, play = false) {
   return paint(w, h, (ctx, W, H) => {
     const m = (mat / w) * W
     ctx.fillStyle = MAT
@@ -459,6 +460,27 @@ export function artwork(img, w, h, mat) {
     ctx.strokeStyle = 'rgba(0,0,0,0.18)'
     ctx.lineWidth = Math.max(1, W * 0.003)
     ctx.strokeRect(m, m, W - m * 2, H - m * 2)
+    if (!play) return
+
+    const cx = W / 2, cy = H / 2, r = Math.min(W, H) * 0.11
+    ctx.fillStyle = 'rgba(20,20,24,0.55)'
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'
+    ctx.lineWidth = r * 0.07
+    ctx.stroke()
+    ctx.fillStyle = '#fff'
+    ctx.beginPath()
+    ctx.moveTo(cx - r * 0.3, cy - r * 0.45)
+    ctx.lineTo(cx + r * 0.48, cy)
+    ctx.lineTo(cx - r * 0.3, cy + r * 0.45)
+    ctx.closePath()
+    ctx.fill()
+    ctx.fillStyle = 'rgba(29,31,36,0.7)'
+    ctx.textAlign = 'center'
+    fit(ctx, '▶ play video', m * 0.58, W - m * 2, 500)
+    ctx.fillText('▶ play video', W / 2, H - m * 0.28)
   })
 }
 

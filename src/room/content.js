@@ -15,10 +15,23 @@ export const GALLERY_ROOM = {
   x: DOORWAY.x, z: -ROOM.HALF - DOORWAY.depth - GALLERY_DEPTH / 2, W: 10, D: GALLERY_DEPTH, HEIGHT: 3.6,
 }
 
-// Photos for the gallery. Put the files in public/gallery/ and list them here; they
-// fill the frames in order, far wall first. Frames without a photo say "coming soon".
-// e.g. { id: 'lake', src: '/gallery/lake.jpg', title: 'lake michigan', caption: 'summer 2026' }
-export const gallery = []
+// The gallery's photos and videos, in public/gallery/. They fill the frames in order
+// (SLOTS in Gallery.jsx), starting with the big one in the middle of the far wall.
+// `src` opens when you click; `thumb` is the smaller copy hung on the wall (for a
+// video, its poster). Frames left over say "coming soon".
+const photo = (id, title, caption) => ({ id, title, caption, src: `/gallery/${id}.jpg`, thumb: `/gallery/${id}-wall.jpg` })
+export const gallery = [
+  { id: 'pole-vault', video: true, src: '/gallery/pole-vault.mp4', thumb: '/gallery/pole-vault-poster.jpg', title: 'pole vault', caption: 'spring 2026' },
+  photo('team-photo', 'team photo', 'march 2025'),
+  photo('hackmidwest-selfie', 'hackmidwest', 'oct 2026, building GrocerEZ'),
+  photo('the-carry', 'the carry'),
+  photo('arms-crossed', 'arms crossed'),
+  photo('roof-work', 'roof work', 'june 2026'),
+  photo('roof-crew', 'roof crew', 'june 2026'),
+  photo('metal-roof', 'metal roof', 'june 2026'),
+  photo('grocerez-sketch-closed', 'grocerez sketch', 'the pantry, closed'),
+  photo('grocerez-sketch-open', 'grocerez sketch', 'the pantry, open'),
+]
 
 export const projects = [
   {

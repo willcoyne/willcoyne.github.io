@@ -24,22 +24,23 @@ const WALLS = {
 }
 const DOOR_X = DOORWAY.x - G.x
 
-// The frames, filled with photos in this order: [wall, x, y, max width, max height]
-// in wall coordinates. Photos beyond the last frame only show up in the menu.
+// The frames, filled in `gallery` order: [wall, x, y, max width, max height] in wall
+// coordinates. Anything beyond the last frame only shows up in the menu.
 const SLOTS = [
-  ['north', 0, 1.8, 2.6, 1.6],
-  ['north', -3.05, 1.8, 1.5, 1.3],
-  ['north', 3.05, 1.8, 1.5, 1.3],
-  ['west', -1.7, 1.8, 1.6, 1.3],
-  ['west', 1.7, 1.8, 1.6, 1.3],
-  ['east', -1.7, 1.8, 1.6, 1.3],
-  ['east', 1.7, 1.8, 1.6, 1.3],
-  ['south', -3.05, 1.85, 1.5, 1.1],
-  ['south', 3.05, 1.85, 1.5, 1.1],
+  ['north', 0, 1.55, 1.9, 2.6], // the big one, facing the doorway
+  ['north', -2.6, 1.75, 1.65, 1.3],
+  ['north', 2.6, 1.75, 1.65, 1.3],
+  ['west', -1.9, 1.8, 1.4, 1.7], // either side of the sculpture
+  ['west', 1.9, 1.8, 1.4, 1.7],
+  ['east', -2.3, 1.8, 1.6, 1.35],
+  ['east', 0, 1.8, 1.6, 1.35],
+  ['east', 2.3, 1.8, 1.6, 1.35],
+  ['south', -3.05, 1.85, 1.4, 1.5], // either side of the doorway
+  ['south', 3.05, 1.85, 1.4, 1.5],
 ]
 
-// A photo in a mat, as large as its shape allows within the slot. Until it loads,
-// or if there's no photo for this frame yet, it shows a placeholder.
+// A photo (or a video's poster) in a mat, as large as its shape allows within the
+// slot. Until it loads, or if there's nothing for this frame yet, it shows a placeholder.
 function Art({ slot, i, item, pool, hovered }) {
   const [, x, y, maxW, maxH] = slot
   const [photo, setPhoto] = useState(null)
@@ -52,22 +53,22 @@ function Art({ slot, i, item, pool, hovered }) {
     if (!item?.src) return
     let alive = true
     const img = new Image()
-    img.src = item.src
+    img.src = item.thumb ?? item.src
     img.decode()
       .then(() => {
         if (!alive) return
         const aspect = img.naturalWidth / img.naturalHeight
         const iw = Math.min(maxW - MAT * 2, (maxH - MAT * 2) * aspect)
         const w = iw + MAT * 2, h = iw / aspect + MAT * 2
-        setPhoto({ texture: artwork(img, w, h, MAT), w, h })
+        setPhoto({ texture: artwork(img, w, h, MAT, item.video), w, h })
       })
-      .catch((err) => console.warn('gallery photo failed to load', item.src, err))
+      .catch((err) => console.warn('gallery picture failed to load', img.src, err))
     return () => { alive = false }
   }, [item, maxW, maxH])
   useEffect(() => () => photo?.texture.dispose(), [photo])
 
   const exhibit = useMemo(() => (item?.src
-    ? { id: `art-${i}`, label: `view ${item.title ?? 'photo'}`, action: { type: 'photo', item } }
+    ? { id: `art-${i}`, label: `${item.video ? 'play' : 'view'} ${item.title ?? 'photo'}`, action: { type: 'media', item } }
     : { id: `art-${i}`, label: 'photo coming soon', action: null }), [item, i])
   const w = photo?.w ?? maxW, h = photo?.h ?? maxH
 
@@ -160,16 +161,16 @@ function Lounge({ x, z }) {
   const brass = <meshStandardMaterial color="#b08d4a" metalness={0.4} roughness={0.4} />
   return (
     <group position={[x, 0, z]}>
-      <Armchair x={-0.85} ry={-0.2} />
-      <Armchair x={0.6} ry={0.2} />
-      <group position={[-0.12, 0, -0.05]}>
+      <Armchair x={-0.55} ry={-0.2} />
+      <Armchair x={0.85} ry={0.2} />
+      <group position={[0.15, 0, -0.05]}>
         <mesh position={[0, 0.56, 0]}><cylinderGeometry args={[0.24, 0.24, 0.03, 28]} />{wood}</mesh>
         <mesh position={[0, 0.28, 0]}><cylinderGeometry args={[0.025, 0.025, 0.54, 8]} />{wood}</mesh>
         <mesh position={[0, 0.01, 0]}><cylinderGeometry args={[0.16, 0.16, 0.02, 20]} />{wood}</mesh>
         <mesh position={[0.06, 0.665, 0.04]}><cylinderGeometry args={[0.05, 0.04, 0.18, 14]} /><meshStandardMaterial color="#2f5d62" roughness={0.4} /></mesh>
         <mesh position={[-0.08, 0.59, -0.04]} rotation={[0, 0.4, 0]}><boxGeometry args={[0.17, 0.03, 0.23]} /><meshStandardMaterial color="#8c2f39" /></mesh>
       </group>
-      <group position={[1.22, 0, 0.25]}>
+      <group position={[-1.2, 0, 0.25]}>
         <mesh position={[0, 0.015, 0]}><cylinderGeometry args={[0.15, 0.15, 0.03, 20]} />{brass}</mesh>
         <mesh position={[0, 0.78, 0]}><cylinderGeometry args={[0.012, 0.012, 1.5, 6]} />{brass}</mesh>
         <mesh position={[0, 1.6, 0]}>
@@ -251,7 +252,7 @@ export default function Gallery({ hovered }) {
           key={side} at={at} width={width(side)} height={G.HEIGHT} color={WALL_COLOR} trim={WALNUT}
           opening={side === 'south' ? { x: -DOOR_X, w: DOORWAY.w, h: DOORWAY.h } : undefined}
         >
-          {side === 'north' && <Header text="gallery" y={G.HEIGHT - 0.45} color="rgba(240,233,218,0.85)" />}
+          {side === 'north' && <Header text="gallery" y={G.HEIGHT - 0.4} color="rgba(240,233,218,0.85)" />}
           {SLOTS.map((slot, i) => slot[0] === side && (
             <Art key={i} slot={slot} i={i} item={gallery[i]} pool={pool} hovered={hovered} />
           ))}
